@@ -629,7 +629,7 @@ async function loadWeeklyCases(){
     const safe=(v)=>String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     const clean=(v)=>Array.isArray(v)?v.map(clean):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,clean(x)])):typeof v==='string'?safe(v):v;
     for(const raw of weekly){
-      if(!raw||typeof raw!=='object'||!/^hebdo-\\d{4}-\\d{2}-\\d{2}$/.test(raw.id)||![1,2,3].includes(raw.niv))continue;
+      if(!raw||typeof raw!=='object'||!/^hebdo-\d{4}-\d{2}-\d{2}$/.test(raw.id)||![1,2,3].includes(raw.niv))continue;
       if(CASES.some(c=>c.id===raw.id))continue;
       if(!raw.indices||!Array.isArray(raw.lieux)||!Array.isArray(raw.suspects)||!raw.solution||!Array.isArray(raw.hints))continue;
       CASES.push(clean(raw));
