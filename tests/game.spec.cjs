@@ -12,6 +12,8 @@ async function jouer(page,id,grade,joueurs){
   await page.locator('#b36-count').selectOption(String(joueurs));
   for(let i=0;i<joueurs;i++)await page.locator('#b36-name-'+i).fill('Agent '+(i+1));
   await page.locator('[data-b36="launch"]').click();
+  const launchState=await page.evaluate(()=>({view:S.view,hasGame:!!S.g,setup:B36.setup,html:document.querySelector('#app')?.innerText.slice(0,300)}));
+  expect(launchState.hasGame,'Après ouverture : '+JSON.stringify(launchState)).toBe(true);
   const dossier=await page.evaluate(id=>CASES.find(c=>c.id===id),id);
   expect(dossier).toBeTruthy();
   const ready=async()=>{
