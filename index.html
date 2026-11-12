@@ -557,7 +557,7 @@ function finish(win,st){
  const score=win?Math.max(0,Math.min(3,st)):0;
  S.res={win,stars:score};
  delete S.games[c.id];
- if(win&&(!prog[c.id]||prog[c.id].s<score)){prog[c.id]={s:score};saveProg()}
+ if(win){prog[c.id]={s:score};saveProg()}
  S.view='end';
 }
 function resolve(){
