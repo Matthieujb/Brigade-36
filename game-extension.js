@@ -48,7 +48,7 @@ carnetTab=function(g){
  const old=g.c.niv;g.c.niv=g.level;let html;try{html=b36Original.carnetTab(g)}finally{g.c.niv=old}
  if(!g.players)return html;
  const remaining=B36.remaining(g);
- html=html.replace(/<h2 class="sec">Conseils du chef<\/h2>[\s\S]*?<\/div>(?=(?:<p class="muted"|$))/,'');
+ html=html.replace(/<h2 class="sec">Conseils du chef<\/h2>[\s\S]*$/,'');
  // Les conseils progressifs sont affichés au-dessus du carnet.
  return '<section class="b36-hints"><h2 class="sec">Indices demandés</h2>'+(g.hintLog||[]).map((x,i)=>'<p class="hint"><b>Palier '+Math.min(i+1,3)+'</b> '+B36.escape(x)+'</p>').join('')+'<button class="btn g" data-b36="hint" '+(!remaining?'disabled':'')+'>Demander un indice ('+remaining+')</button></section>'+html;
 };
