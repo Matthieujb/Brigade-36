@@ -112,8 +112,8 @@ def main():
     now = dt.datetime.now(PARIS)
     # Scheduled jobs run at 16 and 17 UTC to handle summer/winter time.
     # A manual run is allowed for testing, but only publishes on Friday at 18 Paris time.
-    if now.weekday() != 4 or now.hour != 18:
-        print("Hors créneau vendredi 18 h Europe/Paris : aucune publication.")
+    if now.weekday() != 4 or now.hour < 18:
+        print("Avant vendredi 18 h Europe/Paris ou hors vendredi : aucune proposition.")
         return
     if not os.getenv("OPENAI_API_KEY"):
         fail("Secret OPENAI_API_KEY manquant : aucune enquête générée.")
