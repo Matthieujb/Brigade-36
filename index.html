@@ -542,7 +542,7 @@ function caseV(){
   const body=g.tab==='lieux'?lieuxTab(g):g.tab==='carnet'?carnetTab(g):g.tab==='pers'?persTab(g):accTab(g);
   return topbar(g)+`<main class="wrap main ${L.cls}">${body}</main>`+nav(g);
 }
-function endV(){
+function baseEndV(){
   const g=S.g,c=g.c,r=S.res,s=c.suspects.find(x=>x.id===c.solution.coupable);
   const idx=CASES.indexOf(c),nx=CASES[idx+1];
   return topbar(null)+`<main class="wrap"><section class="hero"><p class="kick">Dossier ${num(c)} · ${c.titre}</p><h1 class="verdict ${r.win?'win':'lose'}">${r.win?'Affaire classée':'Classée sans suite'}</h1>${r.win?`<p class="stars big-stars" aria-label="${r.stars} étoiles sur 3">${stars(r.stars)}</p>`:'<p class="lead">Le juge d’instruction a refusé vos accusations. Voici ce qui s’était réellement passé.</p>'}</section><section class="brief"><p class="kick">Le coupable</p><h2 class="ct" style="margin-top:6px">${s.nom}</h2><p>${c.solution.expl}</p></section><p class="rule" style="margin-top:14px">Essais ratés : ${g.errs} · Conseils utilisés : ${g.hints} · Pièces trouvées : ${g.found.length} sur ${Object.keys(c.indices).length}</p><div class="cta"><button class="btn p" data-a="replay" data-id="${c.id}">Rejouer ce dossier</button>${nx&&r.win?`<button class="btn g" data-a="open" data-id="${nx.id}">Dossier suivant : ${nx.titre}</button>`:''}<button class="btn g" data-a="home">Tous les dossiers</button></div></main>`;
