@@ -1,0 +1,29 @@
+name: Tests parcours Brigade 36
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'game-extension.js'
+      - 'tests/**'
+      - 'playwright.config.cjs'
+      - 'package.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Démarrer le serveur local
+        run: python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/brigade36-http.log 2>&1 &
+      - name: Vérifier le JavaScript
+        run: node --check game-extension.js
+      - name: Tester les 9 parcours
+        run: npm run test:e2e
