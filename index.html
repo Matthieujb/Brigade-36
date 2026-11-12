@@ -449,12 +449,12 @@ function addClue(g,id){
 
 /* ---------- Vues ---------- */
 function topbar(g){
-  const L=g&&LV[g.c.niv];
-  const chips=g?`<div class="stats"><span class="chip">Essais<b>${L.essais===Infinity?'∞':Math.max(0,L.essais-g.errs)}</b></span><span class="chip">Conseils<b>${Math.max(0,L.conseils-g.hints)}</b></span></div>`:'';
-  const band='Police judiciaire · Ne pas franchir · '.repeat(5);
-  return `<header class="top"><div class="wrap topin"><button class="brand" data-a="home" aria-label="Retour aux dossiers"><span class="bw">Brigade 36</span><span class="bs">Quai des Orfèvres</span></button>${chips}</div></header><div class="tape" aria-hidden="true">${band}</div>`;
+ const L=g&&LV[g.level];
+ const left=g&&g.hintsAllowed?Math.max(0,g.hintLimit-g.hints):0;
+ const chips=g?`<div class="stats"><span class="chip">Essais<b>${L.essais===Infinity?'∞':Math.max(0,L.essais-g.errs)}</b></span><button class="chip b36-hint" data-a="hint" ${left?'':'disabled'} title="${g.hintsAllowed?'Plus de conseils disponibles':'Indices désactivés lors de la préparation'}">Demander un indice (${left})</button></div>`:'';
+ const band='Police judiciaire · Ne pas franchir · '.repeat(5);
+ return `<header class="top"><div class="wrap topin"><button class="brand" data-a="home" aria-label="Retour aux dossiers"><span class="bw">Brigade 36</span><span class="bs">Quai des Orfèvres</span></button>${chips}</div></header><div class="tape" aria-hidden="true">${band}</div>`;
 }
-
 function card(c){
   const p=prog[c.id],run=S.games[c.id];
   return `<button class="card" data-a="open" data-id="${c.id}"><span class="no">Dossier ${num(c)}${run?' · en cours':''}</span><span class="tt">${c.titre}</span><span class="ac">${c.accroche}</span><span class="st">${p?`<span class="stars" aria-label="${p.s} étoiles sur 3">${stars(p.s)}</span> résolu`:`${c.suspects.length} personnes · ${c.lieux.length} lieux`}</span></button>`;
@@ -470,7 +470,7 @@ function ev(g,id){
   return `<article class="ev"><span class="tag">Pièce n° ${String(k).padStart(2,'0')}</span><h3>${cl.n}</h3><p>${cl.t}</p></article>`;
 }
 function briefH(g){
-  const c=g.c,L=LV[c.niv];
+  const c=g.c,L=LV[g.level];
   return `<section class="brief ${L.cls}"><p class="kick">${L.nom} · Dossier ${num(c)}</p><h1 class="ct">${c.titre}</h1>${g.brief?`<p>${c.intro}</p>`:''}<button class="lnk" data-a="brief">${g.brief?'Réduire le rapport':'Relire le rapport'}</button></section>`;
 }
 function lieuxTab(g){
@@ -480,20 +480,20 @@ function lieuxTab(g){
     return `<button class="back" data-a="lieux">${ico('back',18)} Lieux</button><h2 class="sec">${l.nom}</h2><p class="muted" style="margin:0 0 12px">${l.desc}</p><div class="stack">${l.objets.map(o=>g.found.includes(o)?ev(g,o):`<button class="obj" data-a="examine" data-id="${o}">${ico('lens')}<span>${c.indices[o].n}</span><em>Examiner</em></button>`).join('')}</div>`;
   }
   return briefH(g)+`<h2 class="sec">Lieux à visiter</h2><div class="stack">`+c.lieux.map(l=>{
-    const lock=l.verrou&&!g.found.includes(l.verrou);
+    const lock=g.level===3&&l.verrou&&!g.found.includes(l.verrou);
     const n=l.objets.filter(o=>g.found.includes(o)).length;
     return `<button class="row" data-a="lieu" data-id="${l.id}" ${lock?'disabled':''}><span class="rt"><span class="rn">${l.nom}</span><span class="rd">${lock?'Fermé à clé. Il vous manque un renseignement pour entrer.':l.desc}</span></span><span class="rc">${lock?ico('lock',20):n+' / '+l.objets.length}</span></button>`;
   }).join('')+`</div>`;
 }
 function carnetTab(g){
-  const c=g.c,L=LV[c.niv];
-  const left=Math.max(0,Math.min(L.conseils,c.hints.length)-g.hints);
-  let h=`<h2 class="sec">Carnet de pièces</h2>`;
-  h+=g.found.length?`<div class="stack">${g.found.map(id=>ev(g,id)).join('')}</div>`:`<p class="empty">Aucune pièce pour l’instant. Visitez un lieu et examinez ce que vous y trouvez.</p>`;
-  h+=`<h2 class="sec">Conseils du chef</h2><div class="stack">`+c.hints.slice(0,g.hints).map((t,i)=>`<div class="hint"><b>Conseil ${i+1}</b>${t}</div>`).join('');
-  h+=`<button class="btn g" data-a="hint" ${left?'':'disabled'}>${left?'Demander un conseil ('+left+' restant'+(left>1?'s':'')+')':'Plus de conseil disponible'}</button></div>`;
-  if(g.hints>0)h+=`<p class="muted" style="font-size:14px">Chaque conseil demandé retire une étoile à la fin.</p>`;
-  return h;
+ const c=g.c,left=g.hintsAllowed?Math.max(0,g.hintLimit-g.hints):0;
+ let h='<h2 class="sec">Carnet de pièces</h2>';
+ h+=g.found.length?`<div class="stack">${g.found.map(id=>ev(g,id)).join('')}</div>`:'<p class="empty">Aucune pièce pour l’instant. Visitez un lieu et examinez ce que vous y trouvez.</p>';
+ h+='<h2 class="sec">Indices demandés</h2><div class="stack">';
+ h+=(g.hintLog||[]).map((t,i)=>`<div class="hint"><b>Conseil ${i+1} · Palier ${Math.min(3,i+1)}</b> ${t}</div>`).join('');
+ h+=`<button class="btn g" data-a="hint" ${left?'':'disabled'}>${left?'Demander un indice ('+left+' restant'+(left>1?'s':'')+')':'Aucun indice disponible'}</button></div>`;
+ if(g.hints)h+='<p class="muted">Chaque indice demandé retire une étoile au score final.</p>';
+ return h;
 }
 function persTab(g){
   const c=g.c;
@@ -519,7 +519,7 @@ function persTab(g){
   return h;
 }
 function accTab(g){
-  const c=g.c,L=LV[c.niv],need=L.preuves;
+  const c=g.c,L=LV[g.level],need=L.preuves;
   let h=`<h2 class="sec">Porter une accusation</h2><p class="muted" style="margin:0">${need?`Désignez le coupable, puis choisissez ${need} pièce${need>1?'s':''} du carnet qui le prouve${need>1?'nt':''}.`:'Désignez le coupable.'} ${L.essais===Infinity?'Vos essais sont illimités.':'Il vous reste '+Math.max(0,L.essais-g.errs)+' essai'+(L.essais-g.errs>1?'s':'')+'.'}</p>`;
   if(g.fb)h+=`<p class="fb" role="alert">${g.fb}</p>`;
   h+=`<div class="stack" style="margin-top:12px" role="group" aria-label="Suspects">`+c.suspects.map(s=>`<button class="opt" data-a="sel" data-id="${s.id}" aria-pressed="${g.sel===s.id}"><span class="av">${ini(s.nom)}</span><span class="ot"><b>${s.nom}</b><span>${s.role}</span></span></button>`).join('')+`</div>`;
@@ -538,7 +538,7 @@ function nav(g){
   return `<nav class="nav" aria-label="Sections du dossier"><div class="navin">${T.map(t=>`<button class="nb" data-a="tab" data-id="${t[0]}" ${g.tab===t[0]?'aria-current="page"':''}>${ico(t[2])}<span>${t[1]}</span>${t[0]==='carnet'&&g.found.length?`<i>${g.found.length}</i>`:''}</button>`).join('')}</div></nav>`;
 }
 function caseV(){
-  const g=S.g,L=LV[g.c.niv];
+  const g=S.g,L=LV[g.level];
   const body=g.tab==='lieux'?lieuxTab(g):g.tab==='carnet'?carnetTab(g):g.tab==='pers'?persTab(g):accTab(g);
   return topbar(g)+`<main class="wrap main ${L.cls}">${body}</main>`+nav(g);
 }
@@ -553,81 +553,22 @@ function render(){
 
 /* ---------- Actions ---------- */
 function finish(win,st){
-  const g=S.g,c=g.c;
-  S.res={win,stars:st};
-  delete S.games[c.id];
-  if(win&&(!prog[c.id]||prog[c.id].s<st)){prog[c.id]={s:st};saveProg()}
-  S.view='end';
+ const g=S.g,c=g.c;
+ const score=win?Math.max(0,Math.min(3,st)):0;
+ S.res={win,stars:score};
+ delete S.games[c.id];
+ if(win&&(!prog[c.id]||prog[c.id].s<score)){prog[c.id]={s:score};saveProg()}
+ S.view='end';
 }
 function resolve(){
-  const g=S.g,c=g.c,L=LV[c.niv],sol=c.solution;
-  const okS=g.sel===sol.coupable;
-  const okP=g.proofs.length===L.preuves&&g.proofs.every(p=>sol.preuves.includes(p));
-  if(okS&&okP){finish(true,Math.max(1,3-g.errs-(g.hints>0?1:0)));return}
-  g.errs++;g.confirm=false;g.proofs=[];
-  if(g.errs>=L.essais){finish(false,0);return}
-  g.fb='Dossier rejeté par le juge d’instruction : vos éléments ne tiennent pas. Reprenez l’enquête ou changez de piste.';
+ const g=S.g,c=g.c,L=LV[g.level],sol=c.solution;
+ const ok=g.sel===sol.coupable&&g.proofs.length===L.preuves&&g.proofs.every(p=>sol.preuves.includes(p));
+ g.players[g.turn].accusations++;
+ if(ok){finish(true,Math.max(0,3-g.errs-g.hints));return}
+ g.errs++;g.confirm=false;g.proofs=[];
+ if(g.errs>=L.essais){finish(false,0);return}
+ g.fb='Dossier rejeté : les éléments sont insuffisants. Reprenez l’enquête.';
 }
-function start(id,fresh){
-  const c=CASES.find(x=>x.id===id);
-  if(fresh)delete S.games[id];
-  S.games[id]=S.games[id]||newGame(c);
-  S.g=S.games[id];S.view='case';
-}
-
-app.addEventListener('click',e=>{
-  const b=e.target.closest('[data-a]');
-  if(!b||b.disabled)return;
-  const a=b.dataset.a,id=b.dataset.id,g=S.g;
-  let top=false,bottom=false;
-  switch(a){
-    case 'home':S.view='home';top=true;break;
-    case 'open':start(id,false);top=true;break;
-    case 'replay':start(id,true);top=true;break;
-    case 'tab':g.tab=id;if(id!=='lieux')g.lieu=null;top=true;break;
-    case 'lieu':g.lieu=id;top=true;break;
-    case 'lieux':g.lieu=null;top=true;break;
-    case 'brief':g.brief=!g.brief;break;
-    case 'examine':addClue(g,id);break;
-    case 'pers':g.sus=id;g.picker=false;top=true;break;
-    case 'perslist':g.sus=null;g.picker=false;top=true;break;
-    case 'ask':{
-      const s=g.c.suspects.find(x=>x.id===g.sus),i=+b.dataset.i,q=s.qs[i];
-      (g.asked[s.id]=g.asked[s.id]||[]).push(i);
-      g.log[s.id].push({k:'q',q:q.q,a:q.a});
-      if(q.gain)addClue(g,q.gain);
-      bottom=true;break;
-    }
-    case 'picker':g.picker=!g.picker;break;
-    case 'show':{
-      const s=g.c.suspects.find(x=>x.id===g.sus),r=s.conf&&s.conf[id];
-      (g.shown[s.id]=g.shown[s.id]||[]).push(id);
-      g.log[s.id].push({k:'c',n:g.c.indices[id].n,t:r?r.t:'Cette pièce ne semble pas le troubler.'});
-      if(r&&r.gain)addClue(g,r.gain);
-      g.picker=false;bottom=true;break;
-    }
-    case 'hint':{
-      const L=LV[g.c.niv];
-      if(g.hints<Math.min(L.conseils,g.c.hints.length))g.hints++;
-      break;
-    }
-    case 'sel':g.sel=id;g.proofs=[];g.confirm=false;g.fb='';break;
-    case 'proof':{
-      const need=LV[g.c.niv].preuves;
-      if(g.proofs.includes(id))g.proofs=g.proofs.filter(p=>p!==id);
-      else if(g.proofs.length<need)g.proofs.push(id);
-      else toast('Retirez d’abord une pièce pour en choisir une autre.');
-      g.confirm=false;break;
-    }
-    case 'accuse':if(!g.confirm){g.confirm=true;}else{resolve();top=true}break;
-    case 'cancel':g.confirm=false;break;
-  }
-  render();
-  if(top)window.scrollTo(0,0);
-  if(bottom){const bs=app.querySelectorAll('.bub');if(bs.length)bs[bs.length-1].scrollIntoView({block:'center'})}
-});
-
-
 /* Catalogue hebdomadaire : chargement non bloquant et conservation des dossiers d'origine. */
 async function loadWeeklyCases(){
   try{
@@ -649,7 +590,7 @@ async function loadWeeklyCases(){
 render();
 loadWeeklyCases();
 </script>
-<script src="./game-extension.js" defer></script>
+<script src="./game-extension.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
