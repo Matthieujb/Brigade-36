@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<style>:root{padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+<title>Brigade 36</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Concept : un dossier de police. Fond papier bleuté, ruban jaune de scène de crime, galons pour les grades, pièces et fiches numérotées. */
+:root{
+  --bg:#E6EAF0; --surface:#F6F8FB; --soft:#DAE1EA; --ink:#13202D; --muted:#4F5F73; --line:#BFC9D6;
+  --accent:#1D4E89; --on-accent:#FFFFFF; --tape:#F2C200; --tape-ink:#16130A;
+  --ok:#1B7550; --warn:#8A5700; --bad:#B42318; --gold:#B07C00;
+  --f-display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --f-body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C141E; --surface:#142030; --soft:#1C2B3E; --ink:#E5ECF4; --muted:#9CABBD; --line:#2B3B4F;
+    --accent:#86B8F5; --on-accent:#0C141E; --ok:#5FCB9A; --warn:#E6B450; --bad:#F48A80; --gold:#F2C200;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C141E; --surface:#142030; --soft:#1C2B3E; --ink:#E5ECF4; --muted:#9CABBD; --line:#2B3B4F;
+  --accent:#86B8F5; --on-accent:#0C141E; --ok:#5FCB9A; --warn:#E6B450; --bad:#F48A80; --gold:#F2C200;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font:16px/1.5 var(--f-body); background:var(--bg); color:var(--ink);
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 110px; -webkit-text-size-adjust:100%;
+}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); background:var(--bg); z-index:10}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.wrap{max-width:680px; margin:0 auto}
+.muted{color:var(--muted)}
+.ico{flex:none}
+
+/* barre du haut */
+.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:9; background:var(--bg); border-bottom:1px solid var(--line)}
+.topin{display:flex; align-items:center; justify-content:space-between; gap:12px; padding-block:10px}
+.brand{border:0; background:none; padding:0; text-align:left; cursor:pointer; display:grid; gap:2px; min-height:44px; align-content:center}
+.bw{font:800 28px/1 var(--f-display); letter-spacing:.05em; text-transform:uppercase}
+.bs{font:500 10px/1 var(--f-mono); letter-spacing:.16em; text-transform:uppercase; color:var(--muted)}
+.stats{display:flex; gap:6px}
+.chip{font:400 11px/1 var(--f-mono); letter-spacing:.04em; text-transform:uppercase; padding:7px 9px; border:1px solid var(--line); border-radius:4px; background:var(--surface); color:var(--muted); white-space:nowrap}
+.chip b{color:var(--ink); font-weight:500; margin-left:3px}
+.tape{margin-top:12px; background:var(--tape); color:var(--tape-ink); overflow:hidden; white-space:nowrap; padding:5px 0; font:500 11px/1 var(--f-mono); letter-spacing:.22em; text-transform:uppercase}
+
+/* accueil */
+.hero{padding-top:26px}
+.kick{font:500 12px/1.3 var(--f-mono); letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:0}
+h1{font:800 clamp(40px,12vw,64px)/.95 var(--f-display); text-transform:uppercase; margin:10px 0 12px; text-wrap:balance}
+.lead{max-width:52ch; color:var(--muted); margin:0}
+.lvl{margin-top:34px}
+.l1{--lvl:var(--ok)} .l2{--lvl:var(--warn)} .l3{--lvl:var(--bad)}
+.lvlh{display:flex; align-items:center; gap:12px}
+.gal{display:inline-flex; flex-direction:column; gap:2px; color:var(--lvl)}
+h2{font:700 30px/1 var(--f-display); text-transform:uppercase; letter-spacing:.02em; margin:0}
+.rule{font:400 12px/1.5 var(--f-mono); color:var(--muted); margin:6px 0 0}
+.cards{display:grid; gap:10px; margin-top:14px}
+.card{display:grid; gap:4px; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:14px 16px; cursor:pointer; min-height:64px}
+.card:hover{border-color:var(--lvl)}
+.card .no{font:500 11px/1.2 var(--f-mono); letter-spacing:.14em; text-transform:uppercase; color:var(--lvl)}
+.card .tt{font:700 27px/1.05 var(--f-display); text-transform:uppercase; letter-spacing:.01em}
+.card .ac{color:var(--muted); font-size:15px}
+.card .st{font:400 12px/1.4 var(--f-mono); color:var(--muted); margin-top:4px}
+.stars{color:var(--gold); letter-spacing:.1em; font-size:15px}
+
+/* dossier */
+.main{padding-top:6px}
+.brief{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:14px 16px; margin-top:16px}
+.brief .kick{color:var(--lvl)}
+.ct{font:800 clamp(32px,9vw,44px)/1 var(--f-display); text-transform:uppercase; margin:6px 0 8px}
+.brief p{margin:0 0 4px; max-width:62ch}
+.lnk{border:0; background:none; color:var(--accent); font:500 14px/1 var(--f-mono); padding:12px 0 4px; min-height:44px; cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+.sec{font:700 24px/1 var(--f-display); text-transform:uppercase; letter-spacing:.03em; margin:24px 0 10px}
+.stack{display:grid; gap:10px}
+.back{display:inline-flex; align-items:center; gap:4px; border:0; background:none; color:var(--accent); font:500 14px/1 var(--f-mono); padding:14px 0 0; min-height:48px; cursor:pointer}
+.row{display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:12px 14px; min-height:64px; cursor:pointer}
+.row:disabled{cursor:not-allowed; opacity:.62}
+.row .rt{display:grid; gap:2px; min-width:0}
+.row .rn{font-weight:600}
+.row .rd{font-size:14px; color:var(--muted)}
+.row .rc{font:400 12px/1 var(--f-mono); color:var(--muted); white-space:nowrap}
+.obj{display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:transparent; border:1.5px dashed var(--line); border-radius:6px; padding:12px 14px; min-height:56px; cursor:pointer}
+.obj span{flex:1; font-weight:500; min-width:0}
+.obj em{font:500 11px/1 var(--f-mono); letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-style:normal}
+.ev{background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:12px 14px}
+.ev .tag{font:500 11px/1 var(--f-mono); letter-spacing:.14em; text-transform:uppercase; color:var(--accent)}
+.ev h3{margin:6px 0 4px; font-size:17px; font-weight:600}
+.ev p{margin:0; font-size:15.5px}
+.empty{border:1.5px dashed var(--line); border-radius:6px; padding:16px; color:var(--muted)}
+.hint{background:var(--soft); border-radius:4px; padding:10px 12px; font-size:15px}
+.hint b{font:500 11px/1 var(--f-mono); letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:4px; color:var(--muted)}
+
+/* personnes */
+.who{display:flex; align-items:center; gap:14px}
+.av{flex:none; width:48px; height:58px; border-radius:3px; background:var(--soft); border:1px solid var(--line); display:grid; place-items:center; font:800 22px/1 var(--f-display); letter-spacing:.04em}
+.who .wn{font-weight:600; font-size:18px; line-height:1.2}
+.who .wm{font:400 12px/1.4 var(--f-mono); color:var(--muted)}
+.conv{display:grid; gap:8px; margin:14px 0}
+.bub{max-width:90%; padding:10px 12px; border-radius:10px 10px 10px 2px; font-size:15.5px; background:var(--surface); border:1px solid var(--line)}
+.bub.me{justify-self:end; border-radius:10px 10px 2px 10px; background:var(--accent); color:var(--on-accent); border-color:transparent}
+.bub small{display:block; font:500 10.5px/1 var(--f-mono); letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:5px}
+.q{width:100%; text-align:left; background:transparent; border:1px solid var(--line); border-radius:6px; padding:12px 14px; min-height:48px; color:var(--accent); font-weight:500; cursor:pointer}
+.q:hover{background:var(--soft)}
+
+/* accusation */
+.opt{display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:10px 14px; min-height:60px; cursor:pointer}
+.opt[aria-pressed="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--soft)}
+.opt .ot{display:grid; gap:2px; min-width:0}
+.opt .ot b{font-weight:600}
+.opt .ot span{font-size:14px; color:var(--muted)}
+.fb{background:var(--soft); border-radius:4px; padding:10px 12px; margin:12px 0 0; font-size:15px}
+.btn{min-height:52px; padding:0 20px; border-radius:6px; border:1px solid transparent; font:600 16px/1 var(--f-body); cursor:pointer; width:100%}
+.btn.p{background:var(--accent); color:var(--on-accent)}
+.btn.g{background:transparent; border-color:var(--line); color:var(--ink)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.cta{margin-top:18px; display:grid; gap:10px}
+
+/* fin */
+.verdict{font:800 clamp(44px,14vw,76px)/.92 var(--f-display); text-transform:uppercase; margin:10px 0 8px}
+.verdict.win{color:var(--ok)} .verdict.lose{color:var(--bad)}
+.big-stars{font-size:30px}
+
+/* navigation */
+.nav{position:fixed; left:0; right:0; bottom:0; z-index:9; background:var(--surface); border-top:1px solid var(--line); padding:6px max(16px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.navin{max-width:680px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:4px}
+.nb{position:relative; display:grid; justify-items:center; gap:3px; border:0; background:transparent; min-height:52px; padding:6px 2px; border-radius:6px; color:var(--muted); font:500 10.5px/1 var(--f-mono); letter-spacing:.08em; text-transform:uppercase; cursor:pointer}
+.nb[aria-current="page"]{color:var(--accent); background:var(--soft)}
+.nb i{position:absolute; top:4px; right:calc(50% - 22px); min-width:17px; height:17px; padding:0 4px; border-radius:9px; background:var(--accent); color:var(--on-accent); font:500 10px/17px var(--f-mono); font-style:normal; text-align:center; letter-spacing:0}
+#toast{position:fixed; left:50%; bottom:calc(86px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:20; max-width:calc(100% - 32px); background:var(--ink); color:var(--bg); padding:10px 14px; border-radius:6px; font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s; text-align:center}
+#toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important; scroll-behavior:auto!important}}
+</style>
+
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- Niveaux ---------- */
+const LV={
+  1:{nom:'Stagiaire',essais:Infinity,conseils:3,preuves:0,cls:'l1',regle:'Accusation simple · essais illimités · 3 conseils du chef'},
+  2:{nom:'Inspecteur',essais:3,conseils:2,preuves:1,cls:'l2',regle:'Accusation + 1 preuve · 3 essais · 2 conseils du chef'},
+  3:{nom:'Commissaire',essais:2,conseils:1,preuves:2,cls:'l3',regle:'Accusation + 2 preuves · 2 essais · 1 conseil · lieux verrouillés'}
+};
+
+/* ---------- Dossiers ---------- */
+const CASES=[
+{
+  id:'f1',niv:1,titre:'La boulangerie cambriolée',accroche:'Une caisse vidée, une porte sans trace d’effraction.',
+  intro:'Boulangerie Lemoine, rue des Récollets. Cette nuit, 840 € ont disparu de la caisse. M. Lemoine a trouvé la porte de service entrouverte à 5 h. Trois personnes gravitent autour de la boutique : à vous de trouver qui a agi.',
+  indices:{
+    porte:{n:'Porte de service',t:'Aucune effraction. La serrure est intacte : le voleur avait une clé, ou la porte n’était pas verrouillée.'},
+    cles:{n:'Registre des clés',t:'Trois clés existent : celle de M. Lemoine, celle de l’apprenti Hugo et celle du livreur Denis.'},
+    traces:{n:'Traces dans la farine',t:'Des empreintes de baskets, pointure 43, vont de la porte à la caisse.'},
+    caisse:{n:'Tiroir-caisse',t:'Le tiroir est vide. Les 840 € du fond de caisse ont disparu, les tickets sont intacts.'},
+    planning:{n:'Planning affiché',t:'Hugo arrive à 4 h 30 chaque matin. Denis livre à 6 h.'},
+    camera:{n:'Caméra de la pharmacie',t:'À 2 h 07, une camionnette blanche s’arrête devant la boulangerie. Elle repart à 2 h 31.'}
+  },
+  lieux:[
+    {id:'arr',nom:'Arrière-boutique',desc:'Farine partout, un sol blanc de traces.',objets:['porte','cles','traces']},
+    {id:'bout',nom:'Boutique',desc:'Le comptoir, la caisse, le planning.',objets:['caisse','planning']},
+    {id:'rue',nom:'Rue des Récollets',desc:'Une pharmacie fait face à la boulangerie.',objets:['camera']}
+  ],
+  suspects:[
+    {id:'hugo',nom:'Hugo Perrin',age:17,role:'Apprenti boulanger',alibi:'« J’étais chez moi, avec ma mère, jusqu’à 4 h. »',
+      qs:[{q:'Quelle est votre pointure ?',a:'« Du 39. Les pieds de mon âge, pas ceux d’un géant. »'},
+          {q:'Comment venez-vous au travail ?',a:'« En métro. Je n’ai pas le permis, j’ai 17 ans. »'},
+          {q:'Avez-vous une clé ?',a:'« Oui, pour ouvrir à 4 h 30. Elle est toujours dans mon sac. »'}],
+      conf:{traces:{t:'Il regarde ses chaussures. « Du 43 ? Je chausse du 39. Ce n’est pas moi. »'},camera:{t:'« Une camionnette ? Je ne sais même pas conduire. »'}}},
+    {id:'denis',nom:'Denis Maury',age:34,role:'Livreur',alibi:'« Couché à minuit, seul chez moi. Pas de témoin, désolé. »',
+      qs:[{q:'Quelle est votre pointure ?',a:'« Du 43. Comme la moitié des hommes. »'},
+          {q:'Quel véhicule conduisez-vous ?',a:'« Ma camionnette blanche. Je livre trois boulangeries du quartier. »'},
+          {q:'Avez-vous une clé ?',a:'« Oui, M. Lemoine me la prête pour les livraisons tôt. »'}],
+      conf:{traces:{t:'Il avale sa salive. « Du 43... il y en a des milliers. »'},camera:{t:'Il tripote ses clés. « Ma camionnette était peut-être dans le coin, je ne sais plus. »'}}},
+    {id:'brault',nom:'Mme Brault',age:71,role:'Voisine du dessus, témoin',alibi:'« À ma fenêtre. À mon âge, on ne dort plus. »',
+      qs:[{q:'Qu’avez-vous vu cette nuit ?',a:'« Une camionnette blanche vers 2 h, et un grand gaillard en capuche. »'},
+          {q:'Pouvez-vous le décrire ?',a:'« Non, il me tournait le dos. Il marchait vite. »'}],
+      conf:{camera:{t:'« C’est bien cette camionnette-là ! Je l’ai vue de ma fenêtre. »'}}}
+  ],
+  solution:{coupable:'denis',preuves:['cles','traces','camera'],expl:'Seuls Hugo et Denis avaient une clé, et la porte n’a pas été forcée. Les traces en pointure 43 écartent Hugo, qui chausse du 39. La camionnette blanche filmée à 2 h 07 est celle de Denis, alors que Hugo n’a pas le permis.'},
+  hints:['Qui possédait une clé de la porte de service ?','Comparez la pointure des traces avec celle de chaque suspect.','Une camionnette blanche a été filmée à 2 h 07. Qui conduit ?']
+},
+{
+  id:'f2',niv:1,titre:'Le collier de la Villa Mirabelle',accroche:'Un coffret ouvert pendant le dîner de famille.',
+  intro:'Villa Mirabelle, dîner de famille. Entre 20 h et 21 h, le collier de perles de Mme Verdier a disparu de sa chambre, au premier étage. Le coffret a été ouvert avec sa clé, sans aucune trace de force.',
+  indices:{
+    coffret:{n:'Coffret à bijoux',t:'Ouvert avec sa clé, sans effraction. Le collier de perles manque.'},
+    vin:{n:'Goutte de vin rouge',t:'Une goutte de vin rouge sèche sur le tapis, juste devant le coffret.'},
+    terre:{n:'Terre sur le palier',t:'Quelques miettes de terre sèche sur le palier. Il a plu l’après-midi dans le jardin.'},
+    livre:{n:'Livre creux',t:'Dans la bibliothèque, un faux livre servait de cachette à la clé du coffret. Il est vide. Seuls les proches connaissaient cette cachette.'},
+    plan:{n:'Plan de table',t:'Clotilde a servi chaque plat devant tous les convives, de 20 h à 21 h. Basile a quitté la table vers 20 h 20.'},
+    verres:{n:'Verres de la table',t:'Seul le verre de Basile contenait du vin rouge. Les autres convives buvaient du blanc ou de l’eau.'}
+  },
+  lieux:[
+    {id:'ch',nom:'Chambre de Mme Verdier',desc:'Le coffret, le tapis, le palier.',objets:['coffret','vin','terre']},
+    {id:'bib',nom:'Bibliothèque',desc:'Des rayonnages jusqu’au plafond.',objets:['livre']},
+    {id:'sal',nom:'Salle à manger',desc:'La table n’a pas encore été desservie.',objets:['plan','verres']}
+  ],
+  suspects:[
+    {id:'basile',nom:'Basile Verdier',age:26,role:'Neveu de Mme Verdier',alibi:'« J’ai pris un appel dans le jardin d’hiver, je suis revenu pour le dessert. »',
+      qs:[{q:'Vous buvez du rouge ?',a:'« Toujours. Le Bordeaux de ma tante est excellent. »'},
+          {q:'Connaissiez-vous la cachette de la clé ?',a:'« Bien sûr, je viens ici depuis l’enfance. »'},
+          {q:'Qui vous a vu pendant votre appel ?',a:'« Personne. Je me suis isolé. »'}],
+      conf:{vin:{t:'Il fixe le tapis. « Un hasard. On renverse du vin partout. »'},plan:{t:'« Je suis sorti cinq minutes, pas de quoi en faire une affaire. »'},verres:{t:'Il garde le silence trop longtemps.'},livre:{t:'« Tout le monde pouvait le savoir. »'}}},
+    {id:'clotilde',nom:'Clotilde Roux',age:58,role:'Cuisinière',alibi:'« Au fourneau, puis au service. Je n’ai pas quitté le rez-de-chaussée. »',
+      qs:[{q:'Connaissez-vous la cachette ?',a:'« Oui, après vingt ans dans cette maison. Mais je n’y ai pas touché. »'},
+          {q:'Qui a quitté la table ?',a:'« Monsieur Basile, vers 20 h 20, pendant le plat. »'}],
+      conf:{plan:{t:'« Voilà, j’ai servi tout le monde. Vous pouvez demander. »'},livre:{t:'« Je connais la cachette, mais je ne monte jamais à l’étage pendant le service. »'}}},
+    {id:'armand',nom:'Armand Colin',age:63,role:'Jardinier',alibi:'« J’ai quitté la maison à 19 h, à vélo. »',
+      qs:[{q:'Connaissez-vous la cachette ?',a:'« Non, je n’entre jamais dans la bibliothèque. »'},
+          {q:'Que dites-vous de la terre sur le palier ?',a:'« Je dépose mes bottes à la porte, comme toujours. »'}],
+      conf:{terre:{t:'« Je laisse mes bottes dehors. Cette terre n’est pas la mienne. »'}}}
+  ],
+  solution:{coupable:'basile',preuves:['vin','livre','plan','verres'],expl:'Seuls les proches connaissaient la cachette de la clé. Clotilde a servi la table toute la soirée et Armand était parti à 19 h. Basile est sorti vers 20 h 20, et c’est le seul convive à boire du vin rouge, comme la goutte retrouvée près du coffret.'},
+  hints:['Qui a pu quitter la table sans éveiller les soupçons ?','Comparez la goutte de vin avec ce que chacun buvait.','Qui connaissait la cachette de la clé et n’a pas d’alibi ?']
+},
+{
+  id:'m1',niv:2,titre:'La Dame au miroir',accroche:'Un tableau du XVIIIe siècle remplacé par une copie.',
+  intro:'Musée Roche, Dijon. Jeudi matin, le gardien constate que « La Dame au miroir », un tableau du XVIIIe siècle, est une copie. Le vol a eu lieu dans la nuit de mardi à mercredi, sans que l’alarme sonne. Quatre personnes avaient un lien avec l’œuvre.',
+  indices:{
+    cadre:{n:'Cadre de la toile',t:'Le cadre d’origine a été remis en place avec des vis neuves. Le travail est soigné et demande des outils d’atelier.'},
+    alarme:{n:'Journal d’alarme',t:'Mardi, 23 h 12 : alarme de la salle 4 désactivée avec le badge n° 4471. Réactivée à 0 h 40.'},
+    badges:{n:'Liste des badges',t:'Badge n° 4471 : Marc Taillandier, restaurateur. Badge n° 1002 : Hélène Roche, conservatrice. Badge n° 3310 : Joël Perrin, gardien.'},
+    ronde:{n:'Registre de ronde',t:'Joël a fait sa ronde à 23 h 00 et à 0 h 45 sans rien noter. Entre les deux, il était dans le local de sécurité.'},
+    dette:{n:'Relance bancaire',t:'Une lettre de relance au nom de Joël Perrin : 4 000 € de découvert.'},
+    pigment:{n:'Rapport du laboratoire',t:'La copie contient du blanc de titane, un pigment inventé après 1920. Le seul tube du musée est dans l’atelier de restauration.'},
+    billet:{n:'Billet d’opéra',t:'Un billet froissé dans la corbeille de l’atelier : Opéra de Dijon, séance de mercredi 20 h.'},
+    offre:{n:'Lettre de Valentin Rey',t:'Offre de 2 millions d’euros pour le tableau, refusée deux fois par la conservatrice.'},
+    hotel:{n:'Facture d’hôtel',t:'Hélène Roche a dormi à Lyon la nuit de mardi à mercredi, pour un colloque.'}
+  },
+  lieux:[
+    {id:'s4',nom:'Salle 4',desc:'Le mur où le tableau était accroché.',objets:['cadre']},
+    {id:'sec',nom:'Local de sécurité',desc:'Écrans, registres et casiers.',objets:['alarme','badges','ronde','dette']},
+    {id:'at',nom:'Atelier de restauration',desc:'Chevalets, pigments et corbeille à papier.',objets:['pigment','billet']},
+    {id:'bur',nom:'Bureau de la conservatrice',desc:'Courriers et factures classés.',objets:['offre','hotel']}
+  ],
+  suspects:[
+    {id:'helene',nom:'Hélène Roche',age:49,role:'Conservatrice',alibi:'« Colloque à Lyon, de lundi à mercredi. »',
+      qs:[{q:'Pourquoi refuser l’offre de M. Rey ?',a:'« Le tableau appartient à la ville. Il n’est pas à vendre. »'},
+          {q:'Qui a accès à la salle 4 la nuit ?',a:'« Les badges de la conservation, de la sécurité, et celui du restaurateur pour son chantier. »'}],
+      conf:{hotel:{t:'« Voilà ma facture, j’étais bien à Lyon. »'},offre:{t:'« Valentin insiste depuis un an. »'}}},
+    {id:'marc',nom:'Marc Taillandier',age:44,role:'Restaurateur',alibi:'« À l’Opéra de Dijon, mardi soir. Vous pouvez vérifier. »',
+      qs:[{q:'Où est votre badge ?',a:'« Dans ma poche, jamais perdu. »'},
+          {q:'Avez-vous restauré ce tableau ?',a:'« Oui, il y a deux semaines. Je le connais par cœur. »'},
+          {q:'Avez-vous du blanc de titane à l’atelier ?',a:'« Pour les retouches modernes, comme tout le monde. »'}],
+      conf:{billet:{t:'Il se crispe. « Je me suis trompé de jour, c’est tout. »'},pigment:{t:'« Un tube parmi d’autres. N’importe qui peut y accéder. »'},alarme:{t:'« Quelqu’un a pu cloner mon badge. »'},badges:{t:'« Mon badge, oui. Je ne l’ai jamais prêté. »'},cadre:{t:'« Un cadre, ça se revisse. Ça ne prouve rien. »'}}},
+    {id:'joel',nom:'Joël Perrin',age:52,role:'Gardien de nuit',alibi:'« Mes rondes à 23 h et 0 h 45. Tout était calme. »',
+      qs:[{q:'Avez-vous vu quelqu’un ?',a:'« Personne. Je regardais mes écrans. »'},
+          {q:'Avez-vous des soucis d’argent ?',a:'« Comme tout le monde. Ça n’a rien à voir. »'}],
+      conf:{dette:{t:'Il blêmit. « Je n’ai jamais rien volé de ma vie. »'},alarme:{t:'« Je ne regarde pas ce journal, je contrôle seulement les portes. »'},ronde:{t:'« J’ai fait mes deux rondes, c’est écrit. »'}}},
+    {id:'valentin',nom:'Valentin Rey',age:61,role:'Collectionneur, mécène',alibi:'« À Genève pour affaires, rentré mercredi matin. »',
+      qs:[{q:'Pourquoi tenez-vous à ce tableau ?',a:'« Mon grand-père l’avait possédé. C’est un attachement familial. »'},
+          {q:'Êtes-vous venu au musée récemment ?',a:'« Il y a un mois, pour revoir la toile. »'}],
+      conf:{offre:{t:'« Je l’admets, j’ai insisté. Mais voler ? Je suis collectionneur, pas cambrioleur. »'}}}
+  ],
+  solution:{coupable:'marc',preuves:['alarme','badges','pigment','billet'],expl:'Le journal d’alarme montre que la salle 4 a été désarmée à 23 h 12 avec le badge n° 4471, celui de Marc Taillandier. Son alibi d’opéra s’effondre : son billet date de mercredi. Enfin, la copie contient du blanc de titane, dont le seul tube du musée se trouve dans son atelier.'},
+  hints:['Le badge utilisé pour désarmer l’alarme laisse une trace dans le journal.','Vérifiez les alibis : un papier peut mentir sur la date.','Qui avait à la fois l’accès, les outils et le pigment pour fabriquer la copie ?']
+},
+{
+  id:'m2',niv:2,titre:'Black-out au gala',accroche:'Sept minutes sans lumière, un coffre vidé.',
+  intro:'Hôtel Régence, Lyon. Pendant le gala de bienfaisance, le courant est coupé 7 minutes à 22 h 15. Quand la lumière revient, le coffre du bureau est ouvert : 62 000 € de dons ont disparu. Rien n’a été forcé.',
+  indices:{
+    coffre:{n:'Coffre du bureau',t:'Ouvert avec le code, jamais forcé. Seules deux personnes connaissent le code : Irène Vasseur et Charles Dubreuil.'},
+    gants:{n:'Gant de latex',t:'Un gant de latex taché de sucre glace dans la corbeille du vestiaire. Il sert à la pâtisserie.'},
+    disj:{n:'Disjoncteur B',t:'Le disjoncteur B a été coupé à 22 h 15 et remis à 22 h 22.'},
+    trousseau:{n:'Trousseau du local technique',t:'Trois clés existent : Pascal Noël, la direction de l’hôtel et le maître d’hôtel.'},
+    programme:{n:'Programme de la soirée',t:'Aucune « surprise lumineuse » prévue. À 22 h 10, discours d’Irène Vasseur sur scène, jusqu’à 22 h 25.'},
+    photos:{n:'Photos du gala',t:'Plusieurs photos horodatées montrent Irène Vasseur sur scène, micro en main, à 22 h 14 et à 22 h 19.'},
+    message:{n:'SMS sur le téléphone de Pascal',t:'22 h 02, expéditeur Charles Dubreuil : « Coupe le B à 22 h 15 pile, c’est pour la surprise. »'}
+  },
+  lieux:[
+    {id:'sa',nom:'Salle de bal',desc:'Scène, tables rondes, photographe.',objets:['programme','photos']},
+    {id:'bu',nom:'Bureau de direction',desc:'Le coffre est encastré dans le mur.',objets:['coffre']},
+    {id:'lt',nom:'Local technique',desc:'Tableau électrique et armoire à clés.',objets:['disj','trousseau']},
+    {id:'ve',nom:'Vestiaire du personnel',desc:'Casiers et corbeille.',objets:['gants']}
+  ],
+  suspects:[
+    {id:'irene',nom:'Irène Vasseur',age:55,role:'Organisatrice du gala',alibi:'« Je faisais mon discours sur scène devant 200 personnes. »',
+      qs:[{q:'Qui connaît le code du coffre ?',a:'« Charles et moi, personne d’autre. »'},
+          {q:'Avez-vous quitté la scène ?',a:'« Pas une seconde. Demandez au photographe. »'}],
+      conf:{photos:{t:'« Voilà, j’y étais. Vingt minutes de discours. »'},coffre:{t:'« Le code, oui. Mais je parlais au micro. »'}}},
+    {id:'pascal',nom:'Pascal Noël',age:38,role:'Technicien son et lumière',alibi:'« Je surveillais le son et la lumière depuis la régie. »',
+      qs:[{q:'Avez-vous coupé le courant ?',a:'« Moi ? Jamais. C’est sûrement une panne. »'},
+          {q:'Qui a la clé du local technique ?',a:'« Moi, la direction et le maître d’hôtel. »'}],
+      conf:{disj:{t:'Il baisse les yeux. « Bon... on m’a demandé de le couper. Regardez mon téléphone. »',gain:'message'},trousseau:{t:'« Oui, j’ai une clé, comme les deux autres. »'}}},
+    {id:'charles',nom:'Charles Dubreuil',age:47,role:'Maître d’hôtel',alibi:'« Au bar, je faisais servir le champagne. »',
+      qs:[{q:'Qui connaît le code du coffre ?',a:'« Madame Vasseur et moi. Personne d’autre. »'},
+          {q:'Avez-vous donné une consigne à Pascal ?',a:'« Moi ? Jamais. Pascal gère la technique seul. »'},
+          {q:'Pouvez-vous prouver votre présence au bar ?',a:'« Mes serveurs me connaissent, mais personne ne regardait l’heure. »'}],
+      conf:{message:{t:'Il pâlit. « Un faux. On peut écrire ce qu’on veut sur un téléphone... »'},programme:{t:'« La surprise a peut-être été annulée au dernier moment. »'},trousseau:{t:'« Une clé parmi trois, ça ne prouve rien. »'}}},
+    {id:'lea',nom:'Léa Ferrand',age:24,role:'Serveuse',alibi:'« Je distribuais les petits fours côté jardin. »',
+      qs:[{q:'Qu’avez-vous vu ?',a:'« Un homme en veste noire près du couloir technique. Je n’ai vu que son dos. »'}],
+      conf:{gants:{t:'« Ces gants servent à la plonge, pas à voler. »'}}}
+  ],
+  solution:{coupable:'charles',preuves:['coffre','programme','photos','message'],expl:'Seuls Irène et Charles connaissaient le code du coffre, et les photos placent Irène sur scène pendant la coupure. Pascal, confronté au disjoncteur, avoue avoir reçu un SMS de Charles lui demandant de couper le courant pour une « surprise » qui n’existait pas au programme.'},
+  hints:['Qui connaît le code du coffre, et qui était occupé à 22 h 15 ?','Quelqu’un a coupé le courant : qui avait la clé du local ? Et qui a donné l’ordre ?','Pascal parle plus volontiers quand on lui montre le disjoncteur.']
+},
+{
+  id:'c1',niv:3,titre:'Le dernier manuscrit',accroche:'Une chute fatale que tout le monde veut croire accidentelle.',
+  intro:'Château de Bois-Hardi, près de Rouen. L’écrivain Armand Delorme est retrouvé sans vie au pied de l’échelle de sa bibliothèque, à 7 h 30. Chute accidentelle, dit le médecin de famille. Mais Delorme avait le vertige et ne montait jamais seul sur cette échelle. Cinq personnes l’entouraient hier soir. Certains lieux sont fermés : à vous de trouver les clés.',
+  indices:{
+    echelle:{n:'Échelle de bibliothèque',t:'Les barreaux sont propres, sans trace de semelle. Delorme, qui avait le vertige, ne montait jamais sur cette échelle.'},
+    tisane:{n:'Tasse de tisane',t:'Une tasse de tilleul sur le bureau. L’analyse y relève un sédatif puissant, le même que Delorme prenait le soir, à dose normale. Ici, la dose était triple.'},
+    boite:{n:'Boîte de tisanes',t:'La boîte de tilleul porte l’étiquette « Éditions Keller, Noël 2025 ». Une dizaine de proches en ont reçu une.'},
+    alarme:{n:'Journal d’alarme',t:'Porte du jardin ouverte à 22 h 48 avec le code personnel n° 3. Refermée à 23 h 20.'},
+    codes:{n:'Liste des codes',t:'Codes personnels : n° 1 Delorme, n° 2 Mathilde Ruiz, n° 3 Sonia Keller, n° 4 Lucas Delorme, n° 5 Dr Fabre.'},
+    horaire:{n:'Fiche horaire',t:'Dernier train utile Paris–Rouen : 21 h 14, arrivée 22 h 29. La gare est à 15 minutes du château en taxi.'},
+    dettes:{n:'Courrier d’huissier',t:'Au nom de Lucas Delorme : 18 000 € de dettes de jeu. Il comptait sur l’héritage.'},
+    sms:{n:'Message de Lucas',t:'À 21 h 02, Lucas à son père : « On s’est trop parlé ce soir. Je monte. »'},
+    cave:{n:'Clé de la cave',t:'Mathilde a indiqué que Delorme cachait ses « vrais comptes » dans la cave à vin. La clé est derrière le tableau du vestibule.'},
+    pages:{n:'Chapitre final',t:'Dans la cave, un chapitre daté de lundi : Delorme accuse nommément Sonia Keller d’avoir détourné ses droits d’auteur depuis huit ans.'},
+    droits:{n:'Relevés de droits',t:'Écart de 310 000 € entre les ventes réelles et les droits versés à Delorme depuis 2017.'},
+    addition:{n:'Addition du bistrot',t:'Addition du Bistrot Ravel, à Paris, réglée par carte à 21 h 05 par Sonia Keller. Service terminé.'}
+  },
+  lieux:[
+    {id:'bib',nom:'Bibliothèque',desc:'Là où le corps a été découvert.',objets:['echelle']},
+    {id:'bur',nom:'Bureau de Delorme',desc:'Un bureau encombré de notes et de tasses.',objets:['tisane','boite','horaire']},
+    {id:'ves',nom:'Vestibule',desc:'Le tableau d’alarme et le registre des codes.',objets:['alarme','codes']},
+    {id:'luc',nom:'Chambre de Lucas',desc:'Le fils de la maison dormait ici.',objets:['dettes','sms']},
+    {id:'cav',nom:'Cave à vin',desc:'Une porte de chêne, fermée à clé.',verrou:'cave',objets:['pages','droits']}
+  ],
+  suspects:[
+    {id:'sonia',nom:'Sonia Keller',age:52,role:'Éditrice',alibi:'« Au Bistrot Ravel, à Paris, jusqu’à minuit. Tout le monde m’y connaît. »',
+      qs:[{q:'Aviez-vous un différend avec Delorme ?',a:'« Des discussions de contrat, comme avec tous mes auteurs. »'},
+          {q:'Pouvez-vous prouver où vous étiez ?',a:'« Bien sûr. Voici mon addition. »',gain:'addition'},
+          {q:'Avez-vous un code d’accès au château ?',a:'« Oui, pour déposer les manuscrits. Je m’en sers presque jamais. »'}],
+      conf:{alarme:{t:'« Le code n° 3 ? Quelqu’un a pu s’en servir. »'},codes:{t:'« Oui, c’est le mien. Il circule peut-être dans mon équipe. »'},boite:{t:'« Nous en offrons à tous nos auteurs et à leur entourage. »'},horaire:{t:'« Je ne prends jamais de train le soir. »'},addition:{t:'« Réglée tôt, c’est tout. Je suis restée au bar ensuite. »'},pages:{t:'Elle devient livide. « Des accusations de vieillard. Ça ne prouve rien. »'},droits:{t:'« Des erreurs comptables. Mon logiciel de gestion est défaillant. »'}}},
+    {id:'lucas',nom:'Lucas Delorme',age:29,role:'Fils',alibi:'« Dans ma chambre, avec mes écouteurs, depuis 22 h. »',
+      qs:[{q:'Pourquoi vous êtes-vous disputés ?',a:'« Il refusait de payer mes dettes. Je l’ai insulté, je m’en veux. »'},
+          {q:'Quel est votre code d’accès ?',a:'« Le n° 4. Je ne m’en sers jamais pour le jardin. »'}],
+      conf:{dettes:{t:'« Oui, j’ai des dettes. Mais je n’aurais jamais touché à mon père. »'},sms:{t:'« Je suis monté. Je n’ai plus entendu aucun bruit. »'},alarme:{t:'« Le n° 3 ? Ce n’est pas le mien. »'}}},
+    {id:'mathilde',nom:'Mathilde Ruiz',age:38,role:'Secrétaire',alibi:'« Chez moi, à Rouen. Un voisin m’a vue rentrer à 21 h 30. »',
+      qs:[{q:'Delorme cachait-il quelque chose ?',a:'« Ses “vrais comptes”, dans la cave à vin. La clé est derrière le tableau du vestibule. »',gain:'cave'},
+          {q:'Qui menaçait Delorme ?',a:'« Le voisin pour une histoire de haie, et la maison d’édition pour les contrats. »'}],
+      conf:{alarme:{t:'« Le n° 3 n’est pas le mien. Le mien est le n° 2. »'},codes:{t:'« Oui, mon code est bien le 2. »'}}},
+    {id:'fabre',nom:'Dr Paul Fabre',age:61,role:'Médecin de famille',alibi:'« De garde à la clinique jusqu’à 1 h. »',
+      qs:[{q:'Aviez-vous prescrit un sédatif à Delorme ?',a:'« Oui, depuis un an, pour l’insomnie. À dose normale, c’est inoffensif. »'},
+          {q:'Pourquoi avoir conclu à une chute ?',a:'« Les apparences. Je n’ai pas fait d’autopsie, ce n’était pas mon rôle. »'}],
+      conf:{tisane:{t:'« Ce sédatif, c’était le sien. Mais jamais une dose pareille. »'},alarme:{t:'« Mon code est le n° 5. »'}}},
+    {id:'mazet',nom:'Étienne Mazet',age:67,role:'Voisin',alibi:'« Chez moi, je regardais la télé. »',
+      qs:[{q:'Aviez-vous un conflit avec Delorme ?',a:'« La haie. Il me volait quarante centimètres. Mais de là à le tuer ! »'},
+          {q:'Avez-vous remarqué quelque chose hier soir ?',a:'« Un taxi s’est arrêté devant le portail vers 22 h 40. Une femme en est descendue. »'}],
+      conf:{tisane:{t:'« Je ne mets jamais les pieds chez lui. »'}}}
+  ],
+  solution:{coupable:'sonia',preuves:['alarme','codes','addition','horaire','pages','droits','boite'],expl:'Le code n° 3, qui a ouvert la porte du jardin à 22 h 48, appartient à Sonia Keller. Son addition parisienne est réglée à 21 h 05 : le train de 21 h 14 la déposait à Rouen à 22 h 29, puis un taxi, vu par le voisin, jusqu’au château. Elle a drogué la tisane offerte par sa maison, car Delorme s’apprêtait à publier un chapitre l’accusant d’avoir détourné 310 000 € de droits d’auteur.'},
+  hints:['Le journal d’alarme et la liste des codes désignent quelqu’un. Croisez-les.','Une cave est fermée à clé : quelqu’un sait peut-être où se trouve la clé.','Un alibi trop précis se vérifie : regardez l’heure de l’addition, puis l’horaire des trains.']
+},
+{
+  id:'c2',niv:3,titre:'Le testament Vidal',accroche:'Un testament daté de mars, mais est-il de la main du défunt ?',
+  intro:'Honoré Vidal, magistrat retraité, est mort le 12 juin. Son notaire présente un testament daté du 3 mars qui donne tout à son aide à domicile, Camille Perret. La famille crie au faux. Une fois le testament validé, la succession sera close en quelques jours. Qui l’a fabriqué ? Un lieu reste inaccessible tant que vous ignorez ce qui s’y trouve.',
+  indices:{
+    stylo:{n:'Stylo-plume de Vidal',t:'Dans son bureau, le stylo-plume et l’encrier de Vidal contiennent de l’encre bleu-noir. Le testament est écrit à l’encre bleu turquoise.'},
+    agenda:{n:'Agenda de Vidal',t:'3 mars : dentiste à 15 h, dîner chez sa fille. Aucun rendez-vous chez le notaire.'},
+    comptes:{n:'Relevés bancaires',t:'En février, 190 000 € virés du compte de Vidal vers « Rocroi SARL », sans signature de sa part.'},
+    lettre:{n:'Lettre de Gabriel',t:'Gabriel Vidal demande 30 000 € à son oncle et essuie un refus écrit, en avril.'},
+    visite:{n:'Visites du notaire',t:'Paulette confirme que Maître Roux est venu fin mai chercher des papiers chez Vidal et qu’il a laissé un double de la clé de son étude pour la succession.'},
+    encrier:{n:'Encre de l’étude',t:'L’encrier de l’étude contient de l’encre bleu turquoise, la couleur des courriers à en-tête.'},
+    papier:{n:'Papier à filigrane',t:'Le testament est sur papier filigrané « Étude Roux », d’un lot livré en mai. Il est pourtant daté du 3 mars.'},
+    rocroi:{n:'Courrier Rocroi SARL',t:'Courrier de la société Rocroi SARL, domiciliée à l’adresse personnelle de Maître Roux.'}
+  },
+  lieux:[
+    {id:'bur',nom:'Bureau de Vidal',desc:'Stylos, agenda et relevés de compte.',objets:['stylo','agenda','comptes']},
+    {id:'sal',nom:'Salon',desc:'Un secrétaire ancien et des lettres.',objets:['lettre']},
+    {id:'etu',nom:'Étude de Maître Roux',desc:'Un cabinet notarial fermé à clé.',verrou:'visite',objets:['encrier','papier','rocroi']}
+  ],
+  suspects:[
+    {id:'camille',nom:'Camille Perret',age:34,role:'Aide à domicile',alibi:'« Le 3 mars, j’étais chez moi avec ma fille malade. »',
+      qs:[{q:'Saviez-vous que vous héritiez ?',a:'« Non. Honoré ne m’en a jamais parlé. »'},
+          {q:'Honoré avait-il des soucis d’argent ?',a:'« Non, mais il s’inquiétait de ses comptes. Il disait que le notaire tardait à lui répondre. »'}],
+      conf:{stylo:{t:'« Honoré écrivait toujours en bleu-noir. Je le lui ai vu faire mille fois. »'},comptes:{t:'« 190 000 € ? Il ne m’en a jamais parlé. »'}}},
+    {id:'gabriel',nom:'Gabriel Vidal',age:45,role:'Neveu',alibi:'« Je travaillais à Lyon, mes collègues peuvent le confirmer. »',
+      qs:[{q:'Pourquoi contestez-vous le testament ?',a:'« Mon oncle ne m’aurait jamais déshérité sans un mot. »'},
+          {q:'Aviez-vous besoin d’argent ?',a:'« Un peu. Comme tout le monde. »'}],
+      conf:{lettre:{t:'« Oui, j’ai demandé de l’aide. Et alors ? »'},agenda:{t:'« Donc il n’était pas chez le notaire ce jour-là... »'}}},
+    {id:'paulette',nom:'Paulette Marchal',age:66,role:'Gouvernante',alibi:'« À la cuisine, comme tous les jours. »',
+      qs:[{q:'Qui rendait visite à M. Vidal ?',a:'« Surtout son notaire, Maître Roux. Il est venu fin mai chercher des papiers. Il m’a laissé le double de la clé de l’étude, au cas où. »',gain:'visite'},
+          {q:'Vidal parlait-il de testament ?',a:'« Jamais. Il disait que tout serait partagé entre ses neveux. »'}],
+      conf:{}},
+    {id:'nadine',nom:'Nadine Colas',age:59,role:'Voisine et amie',alibi:'« Chez moi, je ne sortais guère cet hiver. »',
+      qs:[{q:'Vidal se confiait-il à vous ?',a:'« Il se plaignait des frais du notaire et de la lenteur de ses affaires. »'},
+          {q:'Connaissiez-vous Camille ?',a:'« Une femme honnête, qui s’occupait très bien de lui. »'}],
+      conf:{}},
+    {id:'roux',nom:'Maître Roux',age:58,role:'Notaire',alibi:'« Je n’ai fait qu’enregistrer ce testament, écrit de la main du défunt. »',
+      qs:[{q:'Où était le testament ?',a:'« Dans le coffre de l’étude, depuis mars. »'},
+          {q:'Pourquoi le présenter si tard ?',a:'« Parce qu’on ne me l’a signalé qu’au décès. »'}],
+      conf:{stylo:{t:'« Il a pu changer d’encre. Les vieux messieurs ont leurs lubies. »'},papier:{t:'Il se raidit. « Un lot d’essai envoyé à plusieurs clients, une coïncidence. »'},comptes:{t:'« Des placements. Je ne suis pas dans le secret de ses finances. »'},rocroi:{t:'Il ne répond plus, puis demande à appeler son avocat.'},encrier:{t:'« Beaucoup d’études utilisent cette encre. »'},agenda:{t:'« Il a pu rédiger le testament un autre jour. »'}}}
+  ],
+  solution:{coupable:'roux',preuves:['papier','comptes','rocroi','encrier','stylo'],expl:'Le testament est écrit sur un papier à filigrane de l’étude livré en mai, alors qu’il est daté du 3 mars. L’encre turquoise est celle de l’étude, pas celle de Vidal. Maître Roux avait détourné 190 000 € vers Rocroi SARL, société domiciliée chez lui : un faux testament lui permettait de clore vite la succession avant tout contrôle.'},
+  hints:['Le testament est daté du 3 mars. Vérifiez le papier et l’encre.','Un lieu est fermé : qui pourrait vous en dire plus sur les visites du notaire ?','Suivez les 190 000 € virés en février : où sont-ils allés ?']
+}
+];
+
+/* ---------- Icônes et utilitaires ---------- */
+const ICO={
+  lieux:'<path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  carnet:'<path d="M6 3h11a2 2 0 012 2v14a2 2 0 01-2 2H6z"/><path d="M6 3v18M10 8h5M10 12h5"/>',
+  pers:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+  acc:'<path d="M5 21V4M5 4h12l-2.5 4L17 12H5"/>',
+  lens:'<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l6 6"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>'
+};
+const ico=(n,s)=>`<svg class="ico" viewBox="0 0 24 24" width="${s||22}" height="${s||22}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n]}</svg>`;
+const CH=n=>`<span class="gal" aria-hidden="true">${'<svg viewBox="0 0 24 10" width="24" height="10"><path d="M2 8l10-6 10 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg>'.repeat(n)}</span>`;
+const stars=n=>'★'.repeat(n)+'☆'.repeat(3-n);
+const ini=n=>n.replace(/^(Mme|Dr|Maître)\s+/,'').split(' ').slice(0,2).map(w=>w[0]).join('');
+const num=(c)=>String(CASES.indexOf(c)+1).padStart(2,'0');
+
+/* ---------- État ---------- */
+let prog={};
+try{prog=JSON.parse(localStorage.getItem('brigade36')||'{}')||{}}catch(e){prog={}}
+const saveProg=()=>{try{localStorage.setItem('brigade36',JSON.stringify(prog))}catch(e){}};
+const S={view:'home',g:null,games:{},res:null};
+const app=document.getElementById('app');
+let toastT;
+function toast(m){const t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600)}
+
+function newGame(c){
+  const log={};c.suspects.forEach(s=>log[s.id]=[]);
+  return {c,found:[],log,asked:{},shown:{},errs:0,hints:0,tab:'lieux',lieu:null,sus:null,picker:false,sel:null,proofs:[],confirm:false,brief:true,fb:''};
+}
+function addClue(g,id){
+  if(g.found.includes(id))return;
+  g.found.push(id);
+  toast('Pièce n° '+String(g.found.length).padStart(2,'0')+' ajoutée au carnet : '+g.c.indices[id].n);
+}
+
+/* ---------- Vues ---------- */
+function topbar(g){
+  const L=g&&LV[g.c.niv];
+  const chips=g?`<div class="stats"><span class="chip">Essais<b>${L.essais===Infinity?'∞':Math.max(0,L.essais-g.errs)}</b></span><span class="chip">Conseils<b>${Math.max(0,L.conseils-g.hints)}</b></span></div>`:'';
+  const band='Police judiciaire · Ne pas franchir · '.repeat(5);
+  return `<header class="top"><div class="wrap topin"><button class="brand" data-a="home" aria-label="Retour aux dossiers"><span class="bw">Brigade 36</span><span class="bs">Quai des Orfèvres</span></button>${chips}</div></header><div class="tape" aria-hidden="true">${band}</div>`;
+}
+
+function card(c){
+  const p=prog[c.id],run=S.games[c.id];
+  return `<button class="card" data-a="open" data-id="${c.id}"><span class="no">Dossier ${num(c)}${run?' · en cours':''}</span><span class="tt">${c.titre}</span><span class="ac">${c.accroche}</span><span class="st">${p?`<span class="stars" aria-label="${p.s} étoiles sur 3">${stars(p.s)}</span> résolu`:`${c.suspects.length} personnes · ${c.lieux.length} lieux`}</span></button>`;
+}
+function homeV(){
+  const done=CASES.filter(c=>prog[c.id]).length;
+  const lv=[1,2,3].map(n=>{const L=LV[n];return `<section class="lvl ${L.cls}"><div class="lvlh">${CH(n)}<h2>${L.nom}</h2></div><p class="rule">${L.regle}</p><div class="cards">${CASES.filter(c=>c.niv===n).map(card).join('')}</div></section>`}).join('');
+  return topbar(null)+`<main class="wrap"><section class="hero"><p class="kick">Brigade criminelle · ${done} sur ${CASES.length} dossiers résolus</p><h1>Qui est le coupable ?</h1><p class="lead">Visitez les lieux, examinez les pièces, interrogez chaque personne et confrontez-la à votre carnet. Plus le grade est élevé, moins on vous pardonne.</p></section>${lv}</main>`;
+}
+
+function ev(g,id){
+  const cl=g.c.indices[id],k=g.found.indexOf(id)+1;
+  return `<article class="ev"><span class="tag">Pièce n° ${String(k).padStart(2,'0')}</span><h3>${cl.n}</h3><p>${cl.t}</p></article>`;
+}
+function briefH(g){
+  const c=g.c,L=LV[c.niv];
+  return `<section class="brief ${L.cls}"><p class="kick">${L.nom} · Dossier ${num(c)}</p><h1 class="ct">${c.titre}</h1>${g.brief?`<p>${c.intro}</p>`:''}<button class="lnk" data-a="brief">${g.brief?'Réduire le rapport':'Relire le rapport'}</button></section>`;
+}
+function lieuxTab(g){
+  const c=g.c;
+  if(g.lieu){
+    const l=c.lieux.find(x=>x.id===g.lieu);
+    return `<button class="back" data-a="lieux">${ico('back',18)} Lieux</button><h2 class="sec">${l.nom}</h2><p class="muted" style="margin:0 0 12px">${l.desc}</p><div class="stack">${l.objets.map(o=>g.found.includes(o)?ev(g,o):`<button class="obj" data-a="examine" data-id="${o}">${ico('lens')}<span>${c.indices[o].n}</span><em>Examiner</em></button>`).join('')}</div>`;
+  }
+  return briefH(g)+`<h2 class="sec">Lieux à visiter</h2><div class="stack">`+c.lieux.map(l=>{
+    const lock=l.verrou&&!g.found.includes(l.verrou);
+    const n=l.objets.filter(o=>g.found.includes(o)).length;
+    return `<button class="row" data-a="lieu" data-id="${l.id}" ${lock?'disabled':''}><span class="rt"><span class="rn">${l.nom}</span><span class="rd">${lock?'Fermé à clé. Il vous manque un renseignement pour entrer.':l.desc}</span></span><span class="rc">${lock?ico('lock',20):n+' / '+l.objets.length}</span></button>`;
+  }).join('')+`</div>`;
+}
+function carnetTab(g){
+  const c=g.c,L=LV[c.niv];
+  const left=Math.max(0,Math.min(L.conseils,c.hints.length)-g.hints);
+  let h=`<h2 class="sec">Carnet de pièces</h2>`;
+  h+=g.found.length?`<div class="stack">${g.found.map(id=>ev(g,id)).join('')}</div>`:`<p class="empty">Aucune pièce pour l’instant. Visitez un lieu et examinez ce que vous y trouvez.</p>`;
+  h+=`<h2 class="sec">Conseils du chef</h2><div class="stack">`+c.hints.slice(0,g.hints).map((t,i)=>`<div class="hint"><b>Conseil ${i+1}</b>${t}</div>`).join('');
+  h+=`<button class="btn g" data-a="hint" ${left?'':'disabled'}>${left?'Demander un conseil ('+left+' restant'+(left>1?'s':'')+')':'Plus de conseil disponible'}</button></div>`;
+  if(g.hints>0)h+=`<p class="muted" style="font-size:14px">Chaque conseil demandé retire une étoile à la fin.</p>`;
+  return h;
+}
+function persTab(g){
+  const c=g.c;
+  if(!g.sus){
+    return `<h2 class="sec">Suspects et témoins</h2><div class="stack">`+c.suspects.map(s=>{
+      const n=(g.asked[s.id]||[]).length;
+      return `<button class="opt" data-a="pers" data-id="${s.id}"><span class="av">${ini(s.nom)}</span><span class="ot"><b>${s.nom}</b><span>${s.role} · ${s.age} ans</span></span></button>`.replace('</span></button>',`</span></button>`);
+    }).join('')+`</div>`;
+  }
+  const s=c.suspects.find(x=>x.id===g.sus),log=g.log[s.id],asked=g.asked[s.id]||[],shown=g.shown[s.id]||[];
+  let h=`<button class="back" data-a="perslist">${ico('back',18)} Personnes</button>`;
+  h+=`<div class="who" style="margin-top:8px"><span class="av">${ini(s.nom)}</span><div><div class="wn">${s.nom}</div><div class="wm">${s.role} · ${s.age} ans</div></div></div>`;
+  h+=`<div class="conv"><div class="bub"><small>Première déclaration</small>${s.alibi}</div>`;
+  log.forEach(e=>{
+    if(e.k==='q')h+=`<div class="bub me">${e.q}</div><div class="bub">${e.a}</div>`;
+    else h+=`<div class="bub me"><small style="color:inherit;opacity:.8">Pièce présentée</small>${e.n}</div><div class="bub">${e.t}</div>`;
+  });
+  h+=`</div>`;
+  const rest=s.qs.map((q,i)=>asked.includes(i)?'':`<button class="q" data-a="ask" data-i="${i}">${q.q}</button>`).join('');
+  h+=`<h2 class="sec">Poser une question</h2><div class="stack">${rest||'<p class="muted" style="margin:0">Plus de question à poser.</p>'}</div>`;
+  h+=`<div class="cta"><button class="btn g" data-a="picker" ${g.found.length?'':'disabled'}>${g.found.length?(g.picker?'Fermer le carnet':'Présenter une pièce du carnet'):'Carnet vide : rien à présenter'}</button></div>`;
+  if(g.picker)h+=`<div class="stack" style="margin-top:10px">`+g.found.map(id=>`<button class="row" data-a="show" data-id="${id}" ${shown.includes(id)?'disabled':''}><span class="rt"><span class="rn">${c.indices[id].n}</span></span><span class="rc">${shown.includes(id)?'déjà présentée':'présenter'}</span></button>`).join('')+`</div>`;
+  return h;
+}
+function accTab(g){
+  const c=g.c,L=LV[c.niv],need=L.preuves;
+  let h=`<h2 class="sec">Porter une accusation</h2><p class="muted" style="margin:0">${need?`Désignez le coupable, puis choisissez ${need} pièce${need>1?'s':''} du carnet qui le prouve${need>1?'nt':''}.`:'Désignez le coupable.'} ${L.essais===Infinity?'Vos essais sont illimités.':'Il vous reste '+Math.max(0,L.essais-g.errs)+' essai'+(L.essais-g.errs>1?'s':'')+'.'}</p>`;
+  if(g.fb)h+=`<p class="fb" role="alert">${g.fb}</p>`;
+  h+=`<div class="stack" style="margin-top:12px" role="group" aria-label="Suspects">`+c.suspects.map(s=>`<button class="opt" data-a="sel" data-id="${s.id}" aria-pressed="${g.sel===s.id}"><span class="av">${ini(s.nom)}</span><span class="ot"><b>${s.nom}</b><span>${s.role}</span></span></button>`).join('')+`</div>`;
+  if(need&&g.sel){
+    h+=`<h2 class="sec">Pièces à l’appui (${g.proofs.length} / ${need})</h2>`;
+    h+=g.found.length>=need?`<div class="stack" role="group" aria-label="Pièces">`+g.found.map(id=>`<button class="opt" data-a="proof" data-id="${id}" aria-pressed="${g.proofs.includes(id)}"><span class="ot"><b>${c.indices[id].n}</b><span>${c.indices[id].t}</span></span></button>`).join('')+`</div>`:`<p class="empty">Il vous faut au moins ${need} pièce${need>1?'s':''} dans le carnet. Continuez l’enquête.</p>`;
+  }
+  const ready=g.sel&&(need===0||g.proofs.length===need);
+  const sn=g.sel&&c.suspects.find(s=>s.id===g.sel).nom;
+  if(g.confirm&&ready)h+=`<div class="cta"><p style="margin:0"><b>Accuser ${sn} ?</b> Un mauvais choix compte comme un essai.</p><div class="two"><button class="btn p" data-a="accuse">Confirmer</button><button class="btn g" data-a="cancel">Annuler</button></div></div>`;
+  else h+=`<div class="cta"><button class="btn p" data-a="accuse" ${ready?'':'disabled'}>${ready?'Accuser '+sn:'Accuser'}</button></div>`;
+  return h;
+}
+function nav(g){
+  const T=[['lieux','Lieux','lieux'],['carnet','Carnet','carnet'],['pers','Personnes','pers'],['accuser','Accuser','acc']];
+  return `<nav class="nav" aria-label="Sections du dossier"><div class="navin">${T.map(t=>`<button class="nb" data-a="tab" data-id="${t[0]}" ${g.tab===t[0]?'aria-current="page"':''}>${ico(t[2])}<span>${t[1]}</span>${t[0]==='carnet'&&g.found.length?`<i>${g.found.length}</i>`:''}</button>`).join('')}</div></nav>`;
+}
+function caseV(){
+  const g=S.g,L=LV[g.c.niv];
+  const body=g.tab==='lieux'?lieuxTab(g):g.tab==='carnet'?carnetTab(g):g.tab==='pers'?persTab(g):accTab(g);
+  return topbar(g)+`<main class="wrap main ${L.cls}">${body}</main>`+nav(g);
+}
+function endV(){
+  const g=S.g,c=g.c,r=S.res,s=c.suspects.find(x=>x.id===c.solution.coupable);
+  const idx=CASES.indexOf(c),nx=CASES[idx+1];
+  return topbar(null)+`<main class="wrap"><section class="hero"><p class="kick">Dossier ${num(c)} · ${c.titre}</p><h1 class="verdict ${r.win?'win':'lose'}">${r.win?'Affaire classée':'Classée sans suite'}</h1>${r.win?`<p class="stars big-stars" aria-label="${r.stars} étoiles sur 3">${stars(r.stars)}</p>`:'<p class="lead">Le juge d’instruction a refusé vos accusations. Voici ce qui s’était réellement passé.</p>'}</section><section class="brief"><p class="kick">Le coupable</p><h2 class="ct" style="margin-top:6px">${s.nom}</h2><p>${c.solution.expl}</p></section><p class="rule" style="margin-top:14px">Essais ratés : ${g.errs} · Conseils utilisés : ${g.hints} · Pièces trouvées : ${g.found.length} sur ${Object.keys(c.indices).length}</p><div class="cta"><button class="btn p" data-a="replay" data-id="${c.id}">Rejouer ce dossier</button>${nx&&r.win?`<button class="btn g" data-a="open" data-id="${nx.id}">Dossier suivant : ${nx.titre}</button>`:''}<button class="btn g" data-a="home">Tous les dossiers</button></div></main>`;
+}
+function render(){
+  app.innerHTML=S.view==='home'?homeV():S.view==='case'?caseV():endV();
+}
+
+/* ---------- Actions ---------- */
+function finish(win,st){
+  const g=S.g,c=g.c;
+  S.res={win,stars:st};
+  delete S.games[c.id];
+  if(win&&(!prog[c.id]||prog[c.id].s<st)){prog[c.id]={s:st};saveProg()}
+  S.view='end';
+}
+function resolve(){
+  const g=S.g,c=g.c,L=LV[c.niv],sol=c.solution;
+  const okS=g.sel===sol.coupable;
+  const okP=g.proofs.length===L.preuves&&g.proofs.every(p=>sol.preuves.includes(p));
+  if(okS&&okP){finish(true,Math.max(1,3-g.errs-(g.hints>0?1:0)));return}
+  g.errs++;g.confirm=false;g.proofs=[];
+  if(g.errs>=L.essais){finish(false,0);return}
+  g.fb='Dossier rejeté par le juge d’instruction : vos éléments ne tiennent pas. Reprenez l’enquête ou changez de piste.';
+}
+function start(id,fresh){
+  const c=CASES.find(x=>x.id===id);
+  if(fresh)delete S.games[id];
+  S.games[id]=S.games[id]||newGame(c);
+  S.g=S.games[id];S.view='case';
+}
+
+app.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');
+  if(!b||b.disabled)return;
+  const a=b.dataset.a,id=b.dataset.id,g=S.g;
+  let top=false,bottom=false;
+  switch(a){
+    case 'home':S.view='home';top=true;break;
+    case 'open':start(id,false);top=true;break;
+    case 'replay':start(id,true);top=true;break;
+    case 'tab':g.tab=id;if(id!=='lieux')g.lieu=null;top=true;break;
+    case 'lieu':g.lieu=id;top=true;break;
+    case 'lieux':g.lieu=null;top=true;break;
+    case 'brief':g.brief=!g.brief;break;
+    case 'examine':addClue(g,id);break;
+    case 'pers':g.sus=id;g.picker=false;top=true;break;
+    case 'perslist':g.sus=null;g.picker=false;top=true;break;
+    case 'ask':{
+      const s=g.c.suspects.find(x=>x.id===g.sus),i=+b.dataset.i,q=s.qs[i];
+      (g.asked[s.id]=g.asked[s.id]||[]).push(i);
+      g.log[s.id].push({k:'q',q:q.q,a:q.a});
+      if(q.gain)addClue(g,q.gain);
+      bottom=true;break;
+    }
+    case 'picker':g.picker=!g.picker;break;
+    case 'show':{
+      const s=g.c.suspects.find(x=>x.id===g.sus),r=s.conf&&s.conf[id];
+      (g.shown[s.id]=g.shown[s.id]||[]).push(id);
+      g.log[s.id].push({k:'c',n:g.c.indices[id].n,t:r?r.t:'Cette pièce ne semble pas le troubler.'});
+      if(r&&r.gain)addClue(g,r.gain);
+      g.picker=false;bottom=true;break;
+    }
+    case 'hint':{
+      const L=LV[g.c.niv];
+      if(g.hints<Math.min(L.conseils,g.c.hints.length))g.hints++;
+      break;
+    }
+    case 'sel':g.sel=id;g.proofs=[];g.confirm=false;g.fb='';break;
+    case 'proof':{
+      const need=LV[g.c.niv].preuves;
+      if(g.proofs.includes(id))g.proofs=g.proofs.filter(p=>p!==id);
+      else if(g.proofs.length<need)g.proofs.push(id);
+      else toast('Retirez d’abord une pièce pour en choisir une autre.');
+      g.confirm=false;break;
+    }
+    case 'accuse':if(!g.confirm){g.confirm=true;}else{resolve();top=true}break;
+    case 'cancel':g.confirm=false;break;
+  }
+  render();
+  if(top)window.scrollTo(0,0);
+  if(bottom){const bs=app.querySelectorAll('.bub');if(bs.length)bs[bs.length-1].scrollIntoView({block:'center'})}
+});
+
+render();
+</script>
+
+</body>
+</html>
