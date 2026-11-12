@@ -39,21 +39,21 @@ topbar=function(g){
  return html.replace('</div></header>',button+'</div></header>');
 };
 lieuxTab=function(g){
- const html=b36Original.lieuxTab(g);
+ const old=g.c.niv;g.c.niv=g.level;let html;try{html=b36Original.lieuxTab(g)}finally{g.c.niv=old}
  if(g.level!==3)return html;
  // Respecter les verrouillages du dossier en mode Commissaire.
  return html;
 };
 carnetTab=function(g){
- let html=b36Original.carnetTab(g);
+ const old=g.c.niv;g.c.niv=g.level;let html;try{html=b36Original.carnetTab(g)}finally{g.c.niv=old}
  if(!g.players)return html;
  const remaining=B36.remaining(g);
- html=html.replace(/<h2 class="sec">Conseils du chef<\/h2>[\s\S]*?(?=return h;)/,'');
+ html=html.replace(/<h2 class="sec">Conseils du chef<\/h2>[\s\S]*?<\/div>(?=(?:<p class="muted"|$))/,'');
  // Les conseils progressifs sont affichés au-dessus du carnet.
  return '<section class="b36-hints"><h2 class="sec">Indices demandés</h2>'+(g.hintLog||[]).map((x,i)=>'<p class="hint"><b>Palier '+Math.min(i+1,3)+'</b> '+B36.escape(x)+'</p>').join('')+'<button class="btn g" data-b36="hint" '+(!remaining?'disabled':'')+'>Demander un indice ('+remaining+')</button></section>'+html;
 };
 caseV=function(){
- const html=b36Original.caseV(),g=S.g;
+ const g=S.g,old=g.c.niv;g.c.niv=g.level;let html;try{html=b36Original.caseV()}finally{g.c.niv=old}
  if(!g.players||g.players.length===1)return html;
  const band='<div class="b36-turn" role="status">Tour de '+B36.escape(B36.current(g).name)+' · '+(2-g.actions)+' action(s) restante(s) · '+(g.mode==='coop'?'Coopératif':'Compétitif')+'</div>';
  return html.replace('<main class="wrap main ', '<main class="wrap main ').replace(/(<main class="wrap main [^"]*">)/,'$1'+band);
@@ -77,7 +77,7 @@ resolve=function(){
  if(ok){
   const winner=B36.current(g).name;
   const score=Math.max(0,3-g.errs-g.hints);
-  b36Original.resolve();
+  const old=g.c.niv;g.c.niv=g.level;try{b36Original.resolve()}finally{g.c.niv=old}
   if(S.view==='end'){S.res.stars=score;S.res.winner=g.mode==='versus'?winner:null;const p=prog[g.c.id];if(p&&p.s>score){/* conserver meilleur résultat */}else if(p){p.s=score;saveProg()}}
   return;
  }
@@ -118,10 +118,14 @@ document.getElementById('app').addEventListener('change',event=>{
 });
 document.getElementById('app').addEventListener('input',event=>{if(S.view==='setup'&&event.target.dataset.b36Name!==undefined)B36.setup.names[+event.target.dataset.b36Name]=event.target.value});
 document.getElementById('app').addEventListener('click',event=>{
+ const legacyHint=event.target.closest('[data-a="hint"]');
+ if(legacyHint&&S.g&&S.g.players){event.preventDefault();event.stopImmediatePropagation();B36.hint(S.g);B36.save();render()}
+},true);
+document.getElementById('app').addEventListener('click',event=>{
  const el=event.target.closest('[data-a]');if(!el||!S.g||!S.g.players)return;
  const g=S.g,a=el.dataset.a;
  if(S.view==='case'&&['lieu','examine','ask','show'].includes(a)){B36.action(g);if(g.passing){S.view='pass';render()}}
- if(a==='hint'){/* Ancien bouton du carnet : le remplacer par le système progressif. */}
+ 
  B36.save();
 });
 render();
