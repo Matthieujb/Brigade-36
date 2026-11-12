@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<style>:root{padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+<style>:root{padding-block:env(safe-area-inset-top,0px) env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}.b36-setup{padding:24px 0 110px}.b36-setup fieldset{border:1px solid var(--line);border-radius:8px;margin:18px 0;padding:16px;background:var(--surface)}.b36-setup legend{font-weight:700;padding:0 6px}.b36-setup label{display:block;margin:10px 0}.b36-setup .b36-choice{display:flex;gap:10px;align-items:center}.b36-setup input:not([type=radio]):not([type=checkbox]),.b36-setup select{width:100%;min-height:44px;padding:9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}.b36-setup input[type=radio],.b36-setup input[type=checkbox]{width:22px;height:22px;flex:none}.b36-turn{background:var(--soft);border:1px solid var(--line);padding:10px;border-radius:6px;margin-bottom:14px;font-weight:600}.b36-hint{min-height:44px;white-space:normal;cursor:pointer}.b36-hint:disabled{opacity:.5;cursor:not-allowed}button:not(.chip){min-height:44px}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}@media(max-width:400px){.topin{flex-wrap:wrap}.stats{flex-wrap:wrap}.wrap{min-width:0}.card,.row,.opt{min-width:0;overflow-wrap:anywhere}}
+</style>
 <title>Brigade 36</title>
 <meta name="theme-color" content="#0C141E">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -648,6 +649,7 @@ async function loadWeeklyCases(){
 render();
 loadWeeklyCases();
 </script>
+<script src="./game-extension.js" defer></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
