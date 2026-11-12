@@ -1,0 +1,36 @@
+name: Nouvelle enquête hebdomadaire
+on:
+  schedule:
+    - cron: '0 16 * * 5'
+    - cron: '0 17 * * 5'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: brigade36-weekly
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Générer et vérifier une enquête
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}
+        run: python scripts/weekly_case.py
+      - name: Publier si une nouvelle enquête a été créée
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/weekly-cases.json
+          if ! git diff --cached --quiet; then
+            git commit -m "feat: nouvelle enquête hebdomadaire"
+            git push
+          fi
