@@ -88,35 +88,46 @@ Contraintes impératives :
 - ID strictement {case_id}. Difficulté {1 + (int(case_id[-2:]) % 3)}.
 - Tentative {attempt}. Thèmes récents à éviter: {previous}.
 """
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    if not re.fullmatch(r"[a-zA-Z0-9._-]+", model):
+        fail("Nom de modèle Gemini invalide")
     body = json.dumps({
-        "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-        "messages": [
-            {"role": "system", "content": "Tu es scénariste de polar et concepteur de jeux d'enquête. Tu fournis uniquement un objet JSON valide et une affaire logique."},
-            {"role": "user", "content": prompt}
-        ],
-        "response_format": {"type": "json_object"},
-        "temperature": 0.65
+        "systemInstruction": {"parts": [{"text": "Tu es scénariste de polar et concepteur de jeux d'enquête. Réponds uniquement avec un objet JSON valide et une affaire logique."}]},
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "temperature": 0.65,
+            "maxOutputTokens": 8192
+        }
     }).encode("utf-8")
     req = urllib.request.Request(
-        "https://api.openai.com/v1/chat/completions",
+        "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent",
         data=body,
-        headers={"Authorization": "Bearer " + os.environ["OPENAI_API_KEY"], "Content-Type": "application/json"},
+        headers={
+            "x-goog-api-key": os.environ["GEMINI_API_KEY"],
+            "Content-Type": "application/json"
+        },
         method="POST"
     )
-    with urllib.request.urlopen(req, timeout=100) as response:
+    with urllib.request.urlopen(req, timeout=110) as response:
         result = json.load(response)
-    return json.loads(result["choices"][0]["message"]["content"])
+    candidates = result.get("candidates", [])
+    if not candidates or candidates[0].get("finishReason") != "STOP":
+        fail("Réponse Gemini absente ou incomplète")
+    parts = candidates[0].get("content", {}).get("parts", [])
+    output = "".join(part.get("text", "") for part in parts)
+    return json.loads(output)
 
 
 def main():
     now = dt.datetime.now(PARIS)
     # Scheduled jobs run at 16 and 17 UTC to handle summer/winter time.
-    # A manual run is allowed for testing, but only publishes on Friday at 18 Paris time.
+    # Un lancement manuel ne publie que le vendredi à partir de 18 h (Paris).
     if now.weekday() != 4 or now.hour < 18:
         print("Avant vendredi 18 h Europe/Paris ou hors vendredi : aucune proposition.")
         return
-    if not os.getenv("OPENAI_API_KEY"):
-        fail("Secret OPENAI_API_KEY manquant : aucune enquête générée.")
+    if not os.getenv("GEMINI_API_KEY"):
+        fail("Secret GEMINI_API_KEY manquant : aucune enquête générée.")
     data = json.loads(DEST.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         fail("Le catalogue doit être une liste.")
