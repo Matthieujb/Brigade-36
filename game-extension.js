@@ -118,12 +118,21 @@ document.getElementById('app').addEventListener('change',event=>{
 });
 document.getElementById('app').addEventListener('input',event=>{if(S.view==='setup'&&event.target.dataset.b36Name!==undefined)B36.setup.names[+event.target.dataset.b36Name]=event.target.value});
 document.getElementById('app').addEventListener('click',event=>{
+ const target=event.target.closest('[data-a]');
+ if(target&&S.g&&S.g.players&&S.view==='case'){
+  const g=S.g;
+  g._originalLevel=g.c.niv;
+  g.c.niv=g.level;
+ }
+},true);
+document.getElementById('app').addEventListener('click',event=>{
  const legacyHint=event.target.closest('[data-a="hint"]');
  if(legacyHint&&S.g&&S.g.players){event.preventDefault();event.stopImmediatePropagation();B36.hint(S.g);B36.save();render()}
 },true);
 document.getElementById('app').addEventListener('click',event=>{
  const el=event.target.closest('[data-a]');if(!el||!S.g||!S.g.players)return;
  const g=S.g,a=el.dataset.a;
+ if(g._originalLevel!==undefined){g.c.niv=g._originalLevel;delete g._originalLevel}
  if(S.view==='case'&&['lieu','examine','ask','show'].includes(a)){B36.action(g);if(g.passing){S.view='pass';render()}}
  
  B36.save();
