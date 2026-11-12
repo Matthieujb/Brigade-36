@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-const cases=['f1','f2','i1','i2','c1','c2'];
+const cases=['f1','f2','m1','m2','c1','c2'];
 for(const id of cases)for(const level of [1,2,3])for(const count of [1,2,6]){
  test(id+' · grade '+level+' · '+count+' joueur(s)',async({page})=>{
   await page.goto('http://127.0.0.1:8765/');
