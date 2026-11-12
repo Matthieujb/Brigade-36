@@ -5,15 +5,15 @@ Les six enquêtes d'origine sont conservées. Chaque vendredi à partir de **18 
 ## Fonctionnement
 
 1. Le workflow `.github/workflows/weekly-case.yml` démarre le vendredi (créneaux UTC d'été et d'hiver).
-2. `scripts/weekly_case.py` appelle l'API OpenAI et vérifie la structure : suspects, indices, lieux, preuves accessibles, coupable défini et conclusion.
+2. `scripts/weekly_case.py` appelle l'API Google Gemini et vérifie la structure : suspects, indices, lieux, preuves accessibles, coupable défini et conclusion.
 3. En cas de validation, `data/weekly-cases.json` est mis à jour sur `main`, déclenchant le déploiement GitHub Pages.
 4. En cas d'échec des contrôles, rien n'est publié. Un seul dossier par vendredi est autorisé.
 
 ## Configuration indispensable
 
-Dans **Settings → Secrets and variables → Actions**, créer le secret de dépôt `OPENAI_API_KEY` avec une véritable clé API OpenAI. Ne jamais placer la clé dans le code. L'API est facturée séparément de ChatGPT.
+Dans **Settings → Secrets and variables → Actions**, créer le secret de dépôt `GEMINI_API_KEY` avec une véritable clé Google Gemini obtenue sur https://aistudio.google.com/apikey. Ne jamais placer la clé dans le code. Une offre gratuite peut être disponible selon les quotas et les conditions Google; des frais peuvent s'appliquer selon le compte et l'utilisation.
 
-Dans **Settings → Actions → General**, vérifier que le jeton du workflow peut écrire dans le dépôt (Read and write permissions). Le modèle par défaut est `gpt-4o-mini`; une variable de dépôt `OPENAI_MODEL` permet de le modifier.
+Dans **Settings → Actions → General**, vérifier que le jeton du workflow peut écrire dans le dépôt (Read and write permissions). Le modèle par défaut est `gemini-2.5-flash`; une variable de dépôt `GEMINI_MODEL` permet de le modifier.
 
 ## Limites importantes
 
