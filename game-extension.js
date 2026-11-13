@@ -125,11 +125,16 @@ app.addEventListener('click',e=>{
 app.addEventListener('change',e=>{
  if(S.view!=='setup')return;
  const q=B36.setup,t=e.target;
- if(t.name==='b36-level'){q.level=+t.value;q.hintLimit=LV[q.level].conseils}
- if(t.id==='b36-hints')q.hintsAllowed=t.checked;
-
- if(t.id==='b36-count'){q.count=+t.value;while(q.names.length<q.count)q.names.push('Joueur '+(q.names.length+1))}
- render();
+ // Ne jamais reconstruire le formulaire sur le blur d'un prénom :
+ // le clic suivant sur « Ouvrir le dossier » serait perdu.
+ if(t.dataset.b36Name!==undefined){q.names[+t.dataset.b36Name]=t.value;return}
+ if(t.name==='b36-level'){q.level=+t.value;return}
+ if(t.id==='b36-hints'){q.hintsAllowed=t.checked;return}
+ if(t.id==='b36-count'){
+  q.count=+t.value;
+  while(q.names.length<q.count)q.names.push('Joueur '+(q.names.length+1));
+  render();
+ }
 });
 app.addEventListener('input',e=>{
  if(S.view==='setup'&&e.target.dataset.b36Name!==undefined)B36.setup.names[+e.target.dataset.b36Name]=e.target.value;
