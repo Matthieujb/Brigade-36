@@ -5,15 +5,18 @@ test.setTimeout(25000);
 async function jouer(page,id,grade,joueurs){
   const contexte=id+' / grade '+grade+' / '+joueurs+' joueur(s)';
   const log=(message)=>console.log('[Brigade36] '+contexte+' : '+message);
+  const errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
   await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+  await page.evaluate(()=>{window.__launchClicks=[];document.addEventListener('click',e=>{if(e.target.closest('[data-b36="launch"]'))window.__launchClicks.push({target:e.target.outerHTML.slice(0,200),view:S.view})},true)});
   await page.locator('[data-a="open"][data-id="'+id+'"]').click();
   await expect(page.locator('.b36-setup')).toBeVisible();
   await page.locator('input[name="b36-level"][value="'+grade+'"]').check();
   await page.locator('#b36-count').selectOption(String(joueurs));
   for(let i=0;i<joueurs;i++)await page.locator('#b36-name-'+i).fill('Agent '+(i+1));
   await page.locator('[data-b36="launch"]').click();
-  const launchState=await page.evaluate(()=>({view:S.view,hasGame:!!S.g,setup:B36.setup,html:document.querySelector('#app')?.innerText.slice(0,300)}));
-  expect(launchState.hasGame,'Après ouverture : '+JSON.stringify(launchState)).toBe(true);
+  const launchState=await page.evaluate(()=>({view:S.view,hasGame:!!S.g,setup:B36.setup,clicks:window.__launchClicks,html:document.querySelector('#app')?.innerText.slice(0,300)}));
+  expect(launchState.hasGame,'Après ouverture : '+JSON.stringify(launchState)+'; page errors: '+errors.join(' | ')).toBe(true);
   const dossier=await page.evaluate(id=>CASES.find(c=>c.id===id),id);
   expect(dossier).toBeTruthy();
   const ready=async()=>{
