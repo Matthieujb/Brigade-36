@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brigade 36 — Banc d'essai interrogatoires</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#101923;color:#f1f5f9}
+*{box-sizing:border-box}body{margin:0;padding:20px}main{max-width:680px;margin:0 auto}
+h1{font-size:clamp(1.5rem,5vw,2.2rem)}p{line-height:1.55;color:#cbd5e1}
+section{border:1px solid #405064;border-radius:14px;padding:18px;margin:18px 0;background:#1b2938}
+label{display:block;margin:14px 0 6px;font-weight:650}
+input,textarea,button{font:inherit;border-radius:8px}
+input,textarea{width:100%;background:#0e1722;color:#fff;border:1px solid #62748b;padding:12px;min-height:44px}
+textarea{min-height:100px;resize:vertical}
+button{background:#c8a66d;color:#111827;border:0;padding:12px 16px;min-height:44px;font-weight:700;cursor:pointer;margin:8px 8px 8px 0}
+button:disabled{opacity:.55;cursor:not-allowed}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0d1520;padding:14px;border-radius:8px;min-height:65px}
+small{color:#b6c4d5}a{color:#f5cc8d}.notice{border-left:3px solid #e8ba65;padding-left:12px}
+</style>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+</head>
+<body><main>
+<a href="../index.html">← Retour à Brigade 36</a>
+<h1>Interrogatoires — Banc d'essai</h1>
+<p class="notice">Page de test isolée, sans sauvegarde de clés ni modification de l'enquête. Le jeton Turnstile est à usage unique. Seule la Site Key <strong>publique</strong> doit être saisie ici.</p>
+<section>
+<h2>1. Connexion</h2>
+<p>API : <code>brigade36-interrogatoires.matthieujb1.workers.dev</code></p>
+<button id="health" type="button">Tester /health</button>
+<pre id="health-result" role="status" aria-live="polite">Non testé</pre>
+</section>
+<section>
+<h2>2. Vérification Turnstile</h2>
+<label for="sitekey">Site Key publique Turnstile</label>
+<input id="sitekey" type="text" autocomplete="off" placeholder="0x4AAAA..." spellcheck="false">
+<button id="load" type="button">Afficher la vérification</button>
+<div id="turnstile" style="min-height:65px;margin:12px 0"></div>
+<small>Le domaine de cette page doit être autorisé dans ton widget Turnstile. N'entre jamais la Secret Key.</small>
+</section>
+<section>
+<h2>3. Interroger Thomas Vidal (démo)</h2>
+<form id="question-form">
+<label for="question">Question</label>
+<textarea id="question" minlength="5" maxlength="240" required>Où étiez-vous à 22 heures ?</textarea>
+<button id="send" type="submit" disabled>Envoyer la question</button>
+</form>
+<pre id="answer" role="status" aria-live="polite">En attente d'un jeton Turnstile valide.</pre>
+<button id="reset" type="button">Nouvelle vérification</button>
+</section>
+<p><small>Les réponses Gemini peuvent comporter des erreurs. Aucun élément de cette démonstration ne valide les solutions des enquêtes.</small></p>
+</main>
+<script>
+"use strict";
+const API="https://brigade36-interrogatoires.matthieujb1.workers.dev";
+const el=id=>document.getElementById(id);
+let widgetId=null, token="";
+function output(id,value){el(id).textContent=value;}
+function ready(){el("send").disabled=!token;}
+function reset(){token="";ready();if(widgetId!==null&&window.turnstile){turnstile.reset(widgetId);}output("answer","En attente d'un nouveau jeton Turnstile.");}
+el("health").addEventListener("click",async()=>{
+output("health-result","Connexion...");
+try{const r=await fetch(API+"/health",{cache:"no-store"});output("health-result","HTTP "+r.status+"\n"+await r.text());}
+catch(e){output("health-result","Erreur réseau : "+e.message);}
+});
+el("load").addEventListener("click",()=>{
+const key=el("sitekey").value.trim();
+if(!/^0x[\w-]{8,}$/.test(key)){output("answer","Saisis une Site Key publique Turnstile valide.");return;}
+if(!window.turnstile){output("answer","Script Turnstile non chargé. Réessaie dans quelques secondes.");return;}
+if(widgetId!==null){turnstile.remove(widgetId);widgetId=null;}
+token="";ready();
+try{widgetId=turnstile.render("#turnstile",{
+sitekey:key,theme:"dark",
+callback:value=>{token=value;ready();output("answer","Vérification validée. Tu peux poser une question.");},
+"expired-callback":()=>{token="";ready();output("answer","Jeton expiré : renouvelle la vérification.");},
+"error-callback":()=>{token="";ready();output("answer","Erreur Turnstile : vérifie la Site Key et le domaine autorisé.");}
+});}catch(e){output("answer","Impossible d'afficher Turnstile : "+e.message);}
+});
+el("reset").addEventListener("click",reset);
+el("question-form").addEventListener("submit",async event=>{
+event.preventDefault();if(!token)return;
+const question=el("question").value.trim();if(question.length<5||question.length>240)return;
+const oneTimeToken=token;token="";ready();el("send").disabled=true;
+output("answer","Interrogatoire en cours...");
+try{const r=await fetch(API+"/interroger",{
+method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({suspect:"demo",question,turnstileToken:oneTimeToken})
+});
+const data=await r.json();
+output("answer","HTTP "+r.status+"\n"+(data.reponse||data.erreur||JSON.stringify(data)));
+}catch(e){output("answer","Erreur réseau : "+e.message);}
+finally{if(widgetId!==null&&window.turnstile){turnstile.reset(widgetId);} /* Réinitialiser le jeton sans effacer la réponse affichée. */ }
+});
+</script>
+</body></html>
