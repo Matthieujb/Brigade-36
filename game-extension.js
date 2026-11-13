@@ -68,7 +68,13 @@ app.addEventListener('click',e=>{
   q.names=names;S.g=S.games[c.id]=newGame(c,q);S.view='case';top=true;break;
  }
  case 'ready':g.passing=false;S.view='case';top=true;break;
- case 'tab':g.tab=id;if(id!=='lieux')g.lieu=null;top=true;break;
+ case 'tab':
+  // Revenir à la liste lorsque l'on sélectionne à nouveau une section.
+  // Sinon un lieu ou un suspect déjà ouvert masque les autres entrées.
+  if(id==='lieux')g.lieu=null;
+  else if(id==='pers'){g.sus=null;g.picker=false;}
+  else g.lieu=null;
+  g.tab=id;top=true;break;
  case 'lieu':{
   const l=g.c.lieux.find(x=>x.id===id);
   if(!l||(g.level===3&&l.verrou&&!g.found.includes(l.verrou)))break;
