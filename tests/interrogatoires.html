@@ -88,7 +88,7 @@ body:JSON.stringify({suspect:"demo",question,turnstileToken:oneTimeToken})
 const data=await r.json();
 output("answer","HTTP "+r.status+"\n"+(data.reponse||data.erreur||JSON.stringify(data)));
 }catch(e){output("answer","Erreur réseau : "+e.message);}
-finally{reset(); /* Un nouveau jeton est obligatoire après chaque demande. */ }
+finally{if(widgetId!==null&&window.turnstile){turnstile.reset(widgetId);} /* Réinitialiser le jeton sans effacer la réponse affichée. */ }
 });
 </script>
 </body></html>
