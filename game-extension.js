@@ -52,6 +52,33 @@ function action(g){
  if(g.players.length<2)return;
  if(++g.actions>=2){g.actions=0;g.turn=(g.turn+1)%g.players.length;g.passing=true;S.view='pass'}
 }
+
+// Questions libres : uniquement des réponses déjà écrites dans le dossier.
+// Aucun fait nouveau ni indice inventé.
+B36.customQuestion=function(g,question){
+ const suspect=g.c.suspects.find(x=>x.id===g.sus);
+ if(!suspect||g.level!==3)return false;
+ const clean=v=>String(v||'').toLocaleLowerCase('fr').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').trim();
+ const stop=new Set(['vous','nous','avec','pour','dans','avez','etes','quoi','quel','quelle','quand','comment','pourquoi','est','les','des','une','sur','qui','que','votre','leur','cette','cela','fait','etait','alors','avez','par','aux','plus']);
+ const words=v=>new Set(clean(v).split(/\s+/).filter(w=>w.length>2&&!stop.has(w)));
+ const input=words(question);
+ const matches=(suspect.qs||[]).map((q,i)=>{
+  const tokens=words(q.q),common=[...input].filter(w=>tokens.has(w)).length;
+  return {q,i,common,score:common/Math.max(1,Math.sqrt(input.size*tokens.size))};
+ }).sort((a,b)=>b.score-a.score);
+ const best=matches[0];
+ let answer='Je ne peux pas répondre précisément à cette question avec les éléments de ma déclaration. Reformulez-la ou confrontez-moi à une pièce du dossier.';
+ if(best&&best.common>=1&&best.score>=.36){
+  answer=best.q.a;
+  if(!(g.asked[suspect.id]||[]).includes(best.i)){
+   (g.asked[suspect.id]=g.asked[suspect.id]||[]).push(best.i);
+   if(best.q.gain)addClue(g,best.q.gain);
+  }
+ }
+ g.log[suspect.id].push({k:'q',q:question,a:answer});
+ return true;
+};
+
 app.addEventListener('click',e=>{
  const b=e.target.closest('[data-a],[data-b36]');if(!b||b.disabled)return;
  const a=b.dataset.a||b.dataset.b36,id=b.dataset.id,g=S.g;
@@ -146,3 +173,17 @@ app.addEventListener('input',e=>{
  if(S.view==='setup'&&e.target.dataset.b36Name!==undefined)B36.setup.names[+e.target.dataset.b36Name]=e.target.value;
 });
 render();
+
+app.addEventListener('submit',e=>{
+ const form=e.target.closest('#b36-custom-form');
+ if(!form)return;
+ e.preventDefault();
+ if(S.view!=='case'||!S.g||S.g.level!==3||!S.g.sus)return;
+ const field=form.querySelector('input[name="question"]');
+ const question=field.value.trim().slice(0,240);
+ if(question.length<5){toast('Saisissez une question plus précise.');return}
+ if(B36.customQuestion(S.g,question)){
+  B36.save();
+  render();
+ }
+});
