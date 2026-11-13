@@ -450,7 +450,7 @@ function addClue(g,id){
 /* ---------- Vues ---------- */
 function topbar(g){
  const L=g&&LV[g.level];
- const left=g&&g.hintsAllowed?Math.max(0,g.hintLimit-g.hints):0;
+ const left=g&&g.hintsAllowed?'∞':0;
  const chips=g?`<div class="stats"><span class="chip">Essais<b>${L.essais===Infinity?'∞':Math.max(0,L.essais-g.errs)}</b></span><button class="chip b36-hint" data-a="hint" ${left?'':'disabled'} title="${g.hintsAllowed?'Plus de conseils disponibles':'Indices désactivés lors de la préparation'}">Demander un indice (${left})</button></div>`:'';
  const band='Police judiciaire · Ne pas franchir · '.repeat(5);
  return `<header class="top"><div class="wrap topin"><button class="brand" data-a="home" aria-label="Retour aux dossiers"><span class="bw">Brigade 36</span><span class="bs">Quai des Orfèvres</span></button>${chips}</div></header><div class="tape" aria-hidden="true">${band}</div>`;
@@ -486,13 +486,13 @@ function lieuxTab(g){
   }).join('')+`</div>`;
 }
 function carnetTab(g){
- const c=g.c,left=g.hintsAllowed?Math.max(0,g.hintLimit-g.hints):0;
+ const c=g.c,left=g.hintsAllowed?'∞':0;
  let h='<h2 class="sec">Carnet de pièces</h2>';
  h+=g.found.length?`<div class="stack">${g.found.map(id=>ev(g,id)).join('')}</div>`:'<p class="empty">Aucune pièce pour l’instant. Visitez un lieu et examinez ce que vous y trouvez.</p>';
  h+='<h2 class="sec">Indices demandés</h2><div class="stack">';
  h+=(g.hintLog||[]).map((t,i)=>`<div class="hint"><b>Conseil ${i+1} · Palier ${Math.min(3,i+1)}</b> ${t}</div>`).join('');
  h+=`<button class="btn g" data-a="hint" ${left?'':'disabled'}>${left?'Demander un indice ('+left+' restant'+(left>1?'s':'')+')':'Aucun indice disponible'}</button></div>`;
- if(g.hints)h+='<p class="muted">Chaque indice demandé retire une étoile au score final.</p>';
+ if(g.hints)h+='<p class="muted">Les indices diminuent le score en points, sans bloquer la progression.</p>';
  return h;
 }
 function persTab(g){
@@ -554,10 +554,11 @@ function render(){
 /* ---------- Actions ---------- */
 function finish(win,st){
  const g=S.g,c=g.c;
- const score=win?Math.max(0,Math.min(3,st)):0;
- S.res={win,stars:score};
+ const breakdown=B36Score.calculate(g,win);
+ const score=breakdown.stars;
+ S.res={win,stars:score,points:breakdown.points,breakdown};
  delete S.games[c.id];
- if(win){prog[c.id]={s:score};saveProg()}
+ if(win){prog[c.id]={s:score,points:breakdown.points};saveProg()}
  S.view='end';
 }
 function resolve(){
@@ -590,6 +591,7 @@ async function loadWeeklyCases(){
 render();
 loadWeeklyCases();
 </script>
+<script src="./score.js"></script>
 <script src="./game-extension.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
