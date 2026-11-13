@@ -7,6 +7,7 @@ on:
       - 'tests/**'
       - 'playwright.config.cjs'
       - 'package.json'
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,5 +26,16 @@ jobs:
         run: python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/brigade36-http.log 2>&1 &
       - name: Vérifier le JavaScript
         run: node --check game-extension.js
-      - name: Tester les 9 parcours
+      - name: Test initial — dossier f1, Stagiaire, 1 joueur
+        run: npx playwright test -g 'f1 · grade 1 · 1 joueur' --workers=1
+      - name: Tester les 54 parcours
         run: npm run test:e2e
+      - name: Conserver les rapports et captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brigade36-playwright
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
