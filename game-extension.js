@@ -5,7 +5,7 @@ const B36 = {
  escape(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))},
  level(g){return LV[g.level]},
  current(g){return g.players[g.turn]},
- remaining(g){return g.hintsAllowed?Math.max(0,g.hintLimit-g.hints):0},
+ remaining(g){return g.hintsAllowed?Infinity:0},
  save(){try{const o={};for(const [id,g] of Object.entries(S.games)){const {c,...state}=g;o[id]=state}localStorage.setItem('brigade36_games_v3',JSON.stringify(o))}catch(e){}},
  next(g){for(let i=1;i<=g.players.length;i++){const n=(g.turn+i)%g.players.length;if(!g.players[n].out)return n}return g.turn},
  action(g){if(g.players.length<2)return;g.actions++;if(g.actions>=2){g.actions=0;g.turn=this.next(g);g.passing=true;S.view='pass'}},
@@ -23,7 +23,7 @@ try{const raw=JSON.parse(localStorage.getItem('brigade36_games_v3')||'{}');for(c
 const baseEnd=baseEndV;
 function newGame(c,q){
  const log={};c.suspects.forEach(x=>log[x.id]=[]);
- return {c,level:q.level,players:q.names.slice(0,q.count).map(name=>({name,found:0,accusations:0})),hintsAllowed:q.hintsAllowed,hintLimit:q.hintsAllowed?q.hintLimit:0,hints:0,hintLog:[],found:[],log,asked:{},shown:{},errs:0,tab:'lieux',lieu:null,sus:null,picker:false,sel:null,proofs:[],confirm:false,brief:true,fb:'',turn:0,actions:0,passing:false};
+ return {c,level:q.level,players:q.names.slice(0,q.count).map(name=>({name,found:0,accusations:0})),hintsAllowed:q.hintsAllowed,hintLimit:Infinity,hints:0,hintLog:[],found:[],log,asked:{},shown:{},errs:0,startedAt:Date.now(),tab:'lieux',lieu:null,sus:null,picker:false,sel:null,proofs:[],confirm:false,brief:true,fb:'',turn:0,actions:0,passing:false};
 }
 function start(id,fresh){
  const c=CASES.find(x=>x.id===id);if(!c)return;
