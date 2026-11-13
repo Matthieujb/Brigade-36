@@ -38,7 +38,7 @@ function caseV(){
 }
 function endV(){
  const g=S.g,html=baseEnd(),detail='<section class="brief"><h2>Résultats des joueurs</h2>'+g.players.map(p=>'<p>'+B36.escape(p.name)+' : '+p.found+' pièce(s), '+p.accusations+' accusation(s)</p>').join('')+'</section>';
- return html.replace('<div class="cta">',detail+'<div class="cta">');
+ return html.replace('<div class="cta">',B36Score.summary(g,S.res)+detail+'<div class="cta">');
 }
 function render(){
  app.innerHTML=S.view==='setup'?B36.setupView():S.view==='pass'?B36.passView(S.g):S.view==='home'?homeV():S.view==='case'?caseV():endV();
@@ -127,7 +127,7 @@ app.addEventListener('change',e=>{
  const q=B36.setup,t=e.target;
  if(t.name==='b36-level'){q.level=+t.value;q.hintLimit=LV[q.level].conseils}
  if(t.id==='b36-hints')q.hintsAllowed=t.checked;
- if(t.id==='b36-limit')q.hintLimit=+t.value;
+
  if(t.id==='b36-count'){q.count=+t.value;while(q.names.length<q.count)q.names.push('Joueur '+(q.names.length+1))}
  render();
 });
