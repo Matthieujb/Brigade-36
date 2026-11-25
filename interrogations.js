@@ -22,7 +22,7 @@ app.addEventListener('submit',async e=>{
  if(busy||S.view!=='case'||!eligible(g))return;
  const status=form.querySelector('#b36-ai-status'),button=form.querySelector('button'),question=form.querySelector('textarea').value.trim();
  if(question.length<5||question.length>240)return;
- const siteKey=window.B36_TURNSTILE_SITE_KEY;
+ const siteKey=window.B36_TURNSTILE_SITE_KEY || '0x4AAAAAAF_3GHNV5j8Rqbeu';
  if(!siteKey){status.textContent='Interrogatoire libre non configuré. Utilisez les questions du dossier.';return;}
  busy=true;button.disabled=true;status.textContent='Vérification de sécurité…';
  let widget;
