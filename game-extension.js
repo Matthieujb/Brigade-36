@@ -5,7 +5,7 @@ const B36 = {
  escape(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))},
  level(g){return LV[g.level]},
  current(g){return g.players[g.turn]},
- remaining(g){return g.hintsAllowed?Infinity:0},
+ remaining(g){return g.hintsAllowed?Math.max(0,(Number.isFinite(g.hintLimit)?g.hintLimit:LV[g.level].conseils)-g.hints):0},
  save(){try{const o={};for(const [id,g] of Object.entries(S.games)){const {c,...state}=g;o[id]=state}localStorage.setItem('brigade36_games_v3',JSON.stringify(o))}catch(e){}},
  next(g){for(let i=1;i<=g.players.length;i++){const n=(g.turn+i)%g.players.length;if(!g.players[n].out)return n}return g.turn},
  action(g){if(g.players.length<2)return;g.actions++;if(g.actions>=2){g.actions=0;g.turn=this.next(g);g.passing=true;S.view='pass'}},
@@ -23,7 +23,7 @@ try{const raw=JSON.parse(localStorage.getItem('brigade36_games_v3')||'{}');for(c
 const baseEnd=baseEndV;
 function newGame(c,q){
  const log={};c.suspects.forEach(x=>log[x.id]=[]);
- return {c,level:q.level,players:q.names.slice(0,q.count).map(name=>({name,found:0,accusations:0})),hintsAllowed:q.hintsAllowed,hintLimit:Infinity,hints:0,hintLog:[],found:[],log,asked:{},shown:{},errs:0,startedAt:Date.now(),tab:'lieux',lieu:null,sus:null,picker:false,sel:null,proofs:[],confirm:false,brief:true,fb:'',turn:0,actions:0,passing:false};
+ return {c,level:q.level,players:q.names.slice(0,q.count).map(name=>({name,found:0,accusations:0})),hintsAllowed:q.hintsAllowed,hintLimit:Math.max(1,Math.min(5,Number(q.hintLimit)||LV[q.level].conseils)),hints:0,hintLog:[],found:[],log,asked:{},shown:{},errs:0,startedAt:Date.now(),tab:'lieux',lieu:null,sus:null,picker:false,sel:null,proofs:[],confirm:false,brief:true,fb:'',turn:0,actions:0,passing:false};
 }
 function start(id,fresh){
  const c=CASES.find(x=>x.id===id);if(!c)return;
@@ -49,8 +49,7 @@ function addClue(g,id){
  toast('Pièce ajoutée au carnet : '+g.c.indices[id].n);
 }
 function action(g){
- if(g.players.length<2)return;
- if(++g.actions>=2){g.actions=0;g.turn=(g.turn+1)%g.players.length;g.passing=true;S.view='pass'}
+ B36.action(g);
 }
 app.addEventListener('click',e=>{
  const b=e.target.closest('[data-a],[data-b36]');if(!b||b.disabled)return;
@@ -135,7 +134,8 @@ app.addEventListener('change',e=>{
  // le clic suivant sur « Ouvrir le dossier » serait perdu.
  if(t.dataset.b36Name!==undefined){q.names[+t.dataset.b36Name]=t.value;return}
  if(t.name==='b36-level'){q.level=+t.value;return}
- if(t.id==='b36-hints'){q.hintsAllowed=t.checked;return}
+ if(t.id==='b36-limit'){q.hintLimit=+t.value;return}
+ if(t.id==='b36-hints'){q.hintsAllowed=t.checked;render();return}
  if(t.id==='b36-count'){
   q.count=+t.value;
   while(q.names.length<q.count)q.names.push('Joueur '+(q.names.length+1));

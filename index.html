@@ -563,7 +563,7 @@ function finish(win,st){
 }
 function resolve(){
  const g=S.g,c=g.c,L=LV[g.level],sol=c.solution;
- const ok=g.sel===sol.coupable&&g.proofs.length===L.preuves&&g.proofs.every(p=>sol.preuves.includes(p));
+ const ok=g.sel===sol.coupable&&g.proofs.length===L.preuves&&new Set(g.proofs).size===L.preuves&&g.proofs.every(p=>g.found.includes(p)&&sol.preuves.includes(p));
  g.players[g.turn].accusations++;
  if(ok){finish(true,Math.max(0,3-g.errs-g.hints));return}
  g.errs++;g.confirm=false;g.proofs=[];
@@ -593,6 +593,7 @@ loadWeeklyCases();
 </script>
 <script src="./score.js"></script>
 <script src="./game-extension.js"></script>
+<script src="./interrogations.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
