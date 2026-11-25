@@ -40,7 +40,7 @@ app.addEventListener('submit',async e=>{
  if(!r.ok||typeof data.reponse!=='string')throw new Error(r.status===429?'Trop de questions. Réessayez dans une minute.':'Interrogatoire indisponible. Utilisez les questions du dossier.');
  if(S.g!==g||S.view!=='case'||g.sus!==sus||g.turn!==turn||!form.isConnected)return;
  g.log[sus].push({k:'q',q:B36.escape(question),a:B36.escape(data.reponse)});
- action(g);B36.save();render();
+ B36.action(g);B36.save();render();
  }catch(err){status.textContent=err.message||'Interrogatoire indisponible';}
  finally{if(widget!==undefined)try{turnstile.remove(widget)}catch{}busy=false;button.disabled=false;}
 });
