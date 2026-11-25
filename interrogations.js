@@ -4,7 +4,7 @@ const API='https://brigade36-interrogatoires.matthieujb1.workers.dev/interroger'
 const CASES_AI=new Set(['f1','f2','m1','m2','c1','c2']);
 const original=persTab;
 let busy=false;
-const eligible=g=>g&&g.level===3&&g.sus&&CASES_AI.has(g.c.id);
+const eligible=g=>g&&g.level===3&&g.sus&&CASES_AI.has(g.c.id)&&g.c.suspects.some(s=>s.id===g.sus);
 persTab=function(g){
  const html=original(g);
  if(!eligible(g))return html;
@@ -28,6 +28,7 @@ app.addEventListener('submit',async e=>{
  let widget;
  try{
  await loadTurnstile();
+ if(!form.isConnected||S.g!==g||S.view!=='case'||g.sus!==sus||g.turn!==turn)return;
  const token=await new Promise((resolve,reject)=>{
  const timer=setTimeout(()=>reject(new Error('Vérification expirée')),120000);
  const done=(fn,v)=>{clearTimeout(timer);fn(v);};
@@ -36,12 +37,12 @@ app.addEventListener('submit',async e=>{
  if(S.g!==g||S.view!=='case'||g.sus!==sus||g.turn!==turn||!form.isConnected)return;
  status.textContent='Le suspect réfléchit…';
  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({caseId:g.c.id,suspect:sus,question,turnstileToken:token}),signal:AbortSignal.timeout(30000)});
- const data=await r.json();
- if(!r.ok||typeof data.reponse!=='string')throw new Error(r.status===429?'Trop de questions. Réessayez dans une minute.':'Interrogatoire indisponible. Utilisez les questions du dossier.');
+ const data=await r.json().catch(()=>null);
+ if(!r.ok||typeof data?.reponse!=='string')throw new Error(r.status===429?'Trop de questions. Réessayez dans une minute.':'Interrogatoire indisponible. Utilisez les questions du dossier.');
  if(S.g!==g||S.view!=='case'||g.sus!==sus||g.turn!==turn||!form.isConnected)return;
  g.log[sus].push({k:'q',q:B36.escape(question),a:B36.escape(data.reponse)});
  B36.action(g);B36.save();render();
- }catch(err){status.textContent=err.message||'Interrogatoire indisponible';}
+ }catch(err){status.textContent=err.name==='TimeoutError'||err.name==='AbortError'?'Délai dépassé. Réessayez.':err instanceof TypeError?'Connexion indisponible. Réessayez.':err.message||'Interrogatoire indisponible';}
  finally{if(widget!==undefined)try{turnstile.remove(widget)}catch{}busy=false;button.disabled=false;}
 });
 render();
