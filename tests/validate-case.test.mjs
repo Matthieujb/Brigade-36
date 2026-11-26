@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validateCase} from '../lib/validate-case.mjs';
+const fixture=()=>({id:'hebdo-2026-11-27',niv:5,titre:'Test',intro:'Test',accroche:'Test',suspects:['a','b','c'].map(id=>({id,nom:id,role:'Témoin',age:30,alibi:'Au bureau',qs:[{q:'Où ?',a:'Au bureau'}],conf:{}})),indices:{x:{n:'X',t:'Texte'},y:{n:'Y',t:'Texte'}},lieux:[{id:'l',nom:'Bureau',desc:'Lieu',objets:['x','y']}],solution:{coupable:'a',preuves:['x','y'],expl:'Conclusion'},hints:['Un','Deux','Trois']});
+test('accepts all five difficulty levels',()=>{for(let n=1;n<=5;n++){const c=fixture();c.niv=n;assert.deepEqual(validateCase(c),[])}});
+test('rejects unknown culprit',()=>{const c=fixture();c.solution.coupable='z';assert.ok(validateCase(c).length)});
+test('rejects duplicate evidence',()=>{const c=fixture();c.solution.preuves=['x','x'];assert.ok(validateCase(c).length)});
+test('rejects circular lock',()=>{const c=fixture();c.lieux[0].verrou='x';assert.ok(validateCase(c).length)});
+test('rejects invalid difficulty',()=>{const c=fixture();c.niv=6;assert.ok(validateCase(c).length)});
+test('rejects missing solution',()=>{const c=fixture();delete c.solution;assert.ok(validateCase(c).length)});
