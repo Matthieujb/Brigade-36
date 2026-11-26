@@ -26,7 +26,7 @@ const B36 = {
  },
  passView(g){return topbar(null)+'<main class="wrap b36-setup"><p class="kick">Passage du téléphone</p><h1>Tour de '+this.escape(this.current(g).name)+'</h1><p class="lead">Passez le téléphone à cette personne. Le dossier reste masqué jusqu’à sa confirmation.</p><button class="btn p" data-b36="ready">Je suis prêt</button></main>'}
 };
-try{const raw=JSON.parse(localStorage.getItem('brigade36_games_v3')||'{}');for(const [id,g] of Object.entries(raw)){const c=CASES.find(x=>x.id===id);if(c&&g.token&&Array.isArray(g.players)&&g.players.length>=1&&g.players.length<=6){const copy=structuredClone(c);for(const [k,t] of Object.entries(g.evidenceTexts||{}))if(copy.indices[k])copy.indices[k].t=t;S.games[id]={...g,c:copy}}}}catch(e){}
+function restoreServerGames(){try{const raw=JSON.parse(localStorage.getItem('brigade36_games_v3')||'{}');for(const [id,g] of Object.entries(raw)){const c=CASES.find(x=>x.id===id);if(c&&g.token&&Array.isArray(g.players)&&g.players.length>=1&&g.players.length<=6){const copy=structuredClone(c);for(const [k,t] of Object.entries(g.evidenceTexts||{}))if(copy.indices[k])copy.indices[k].t=t;S.games[id]={...g,c:copy}}}}catch(e){}
 
 const baseEnd=baseEndV;
 function newGame(c,q){
