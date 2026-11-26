@@ -19,12 +19,12 @@ app.addEventListener('submit',async e=>{
  if(e.target.id!=='b36-ai-form')return;
  e.preventDefault();
  const g=S.g,form=e.target,sus=g?.sus,turn=g?.turn;
- if(busy||S.view!=='case'||!eligible(g))return;
+ if(busy||serverBusy||S.view!=='case'||!eligible(g))return;
  const status=form.querySelector('#b36-ai-status'),button=form.querySelector('button'),question=form.querySelector('textarea').value.trim();
  if(question.length<5||question.length>240)return;
  const siteKey=window.B36_TURNSTILE_SITE_KEY || '0x4AAAAAAF_3GHNV5j8Rqbeu';
  if(!siteKey){status.textContent='Interrogatoire libre non configuré. Utilisez les questions du dossier.';return;}
- busy=true;button.disabled=true;status.textContent='Vérification de sécurité…';
+ busy=true;serverBusy=true;button.disabled=true;status.textContent='Vérification de sécurité…';
  let widget;
  try{
  await loadTurnstile();
@@ -43,7 +43,7 @@ app.addEventListener('submit',async e=>{
  g.log[sus].push({k:'q',q:B36.escape(question),a:B36.escape(data.reponse)});
  B36.action(g);B36.save();render();
  }catch(err){status.textContent=err.name==='TimeoutError'||err.name==='AbortError'?'Délai dépassé. Réessayez.':err instanceof TypeError?'Connexion indisponible. Réessayez.':err.message||'Interrogatoire indisponible';}
- finally{if(widget!==undefined)try{turnstile.remove(widget)}catch{}busy=false;button.disabled=false;}
+ finally{if(widget!==undefined)try{turnstile.remove(widget)}catch{}busy=false;serverBusy=false;button.disabled=false;}
 });
 render();
 })();
