@@ -166,252 +166,7 @@ const LV={
 };
 
 /* ---------- Dossiers ---------- */
-const CASES=[
-{
-  id:'f1',niv:1,titre:'La boulangerie cambriolée',accroche:'Une caisse vidée, une porte sans trace d’effraction.',
-  intro:'Boulangerie Lemoine, rue des Récollets. Cette nuit, 840 € ont disparu de la caisse. M. Lemoine a trouvé la porte de service entrouverte à 5 h. Trois personnes gravitent autour de la boutique : à vous de trouver qui a agi.',
-  indices:{
-    porte:{n:'Porte de service',t:'Aucune effraction. La serrure est intacte : le voleur avait une clé, ou la porte n’était pas verrouillée.'},
-    cles:{n:'Registre des clés',t:'Trois clés existent : celle de M. Lemoine, celle de l’apprenti Hugo et celle du livreur Denis.'},
-    traces:{n:'Traces dans la farine',t:'Des empreintes de baskets, pointure 43, vont de la porte à la caisse.'},
-    caisse:{n:'Tiroir-caisse',t:'Le tiroir est vide. Les 840 € du fond de caisse ont disparu, les tickets sont intacts.'},
-    planning:{n:'Planning affiché',t:'Hugo arrive à 4 h 30 chaque matin. Denis livre à 6 h.'},
-    camera:{n:'Caméra de la pharmacie',t:'À 2 h 07, une camionnette blanche s’arrête devant la boulangerie. Elle repart à 2 h 31.'}
-  },
-  lieux:[
-    {id:'arr',nom:'Arrière-boutique',desc:'Farine partout, un sol blanc de traces.',objets:['porte','cles','traces']},
-    {id:'bout',nom:'Boutique',desc:'Le comptoir, la caisse, le planning.',objets:['caisse','planning']},
-    {id:'rue',nom:'Rue des Récollets',desc:'Une pharmacie fait face à la boulangerie.',objets:['camera']}
-  ],
-  suspects:[
-    {id:'hugo',nom:'Hugo Perrin',age:17,role:'Apprenti boulanger',alibi:'« J’étais chez moi, avec ma mère, jusqu’à 4 h. »',
-      qs:[{q:'Quelle est votre pointure ?',a:'« Du 39. Les pieds de mon âge, pas ceux d’un géant. »'},
-          {q:'Comment venez-vous au travail ?',a:'« En métro. Je n’ai pas le permis, j’ai 17 ans. »'},
-          {q:'Avez-vous une clé ?',a:'« Oui, pour ouvrir à 4 h 30. Elle est toujours dans mon sac. »'}],
-      conf:{traces:{t:'Il regarde ses chaussures. « Du 43 ? Je chausse du 39. Ce n’est pas moi. »'},camera:{t:'« Une camionnette ? Je ne sais même pas conduire. »'}}},
-    {id:'denis',nom:'Denis Maury',age:34,role:'Livreur',alibi:'« Couché à minuit, seul chez moi. Pas de témoin, désolé. »',
-      qs:[{q:'Quelle est votre pointure ?',a:'« Du 43. Comme la moitié des hommes. »'},
-          {q:'Quel véhicule conduisez-vous ?',a:'« Ma camionnette blanche. Je livre trois boulangeries du quartier. »'},
-          {q:'Avez-vous une clé ?',a:'« Oui, M. Lemoine me la prête pour les livraisons tôt. »'}],
-      conf:{traces:{t:'Il avale sa salive. « Du 43... il y en a des milliers. »'},camera:{t:'Il tripote ses clés. « Ma camionnette était peut-être dans le coin, je ne sais plus. »'}}},
-    {id:'brault',nom:'Mme Brault',age:71,role:'Voisine du dessus, témoin',alibi:'« À ma fenêtre. À mon âge, on ne dort plus. »',
-      qs:[{q:'Qu’avez-vous vu cette nuit ?',a:'« Une camionnette blanche vers 2 h, et un grand gaillard en capuche. »'},
-          {q:'Pouvez-vous le décrire ?',a:'« Non, il me tournait le dos. Il marchait vite. »'}],
-      conf:{camera:{t:'« C’est bien cette camionnette-là ! Je l’ai vue de ma fenêtre. »'}}}
-  ],
-  solution:{coupable:'denis',preuves:['cles','traces','camera'],expl:'Seuls Hugo et Denis avaient une clé, et la porte n’a pas été forcée. Les traces en pointure 43 écartent Hugo, qui chausse du 39. La camionnette blanche filmée à 2 h 07 est celle de Denis, alors que Hugo n’a pas le permis.'},
-  hints:['Qui possédait une clé de la porte de service ?','Comparez la pointure des traces avec celle de chaque suspect.','Une camionnette blanche a été filmée à 2 h 07. Qui conduit ?']
-},
-{
-  id:'f2',niv:1,titre:'Le collier de la Villa Mirabelle',accroche:'Un coffret ouvert pendant le dîner de famille.',
-  intro:'Villa Mirabelle, dîner de famille. Entre 20 h et 21 h, le collier de perles de Mme Verdier a disparu de sa chambre, au premier étage. Le coffret a été ouvert avec sa clé, sans aucune trace de force.',
-  indices:{
-    coffret:{n:'Coffret à bijoux',t:'Ouvert avec sa clé, sans effraction. Le collier de perles manque.'},
-    vin:{n:'Goutte de vin rouge',t:'Une goutte de vin rouge sèche sur le tapis, juste devant le coffret.'},
-    terre:{n:'Terre sur le palier',t:'Quelques miettes de terre sèche sur le palier. Il a plu l’après-midi dans le jardin.'},
-    livre:{n:'Livre creux',t:'Dans la bibliothèque, un faux livre servait de cachette à la clé du coffret. Il est vide. Seuls les proches connaissaient cette cachette.'},
-    plan:{n:'Plan de table',t:'Clotilde a servi chaque plat devant tous les convives, de 20 h à 21 h. Basile a quitté la table vers 20 h 20.'},
-    verres:{n:'Verres de la table',t:'Seul le verre de Basile contenait du vin rouge. Les autres convives buvaient du blanc ou de l’eau.'}
-  },
-  lieux:[
-    {id:'ch',nom:'Chambre de Mme Verdier',desc:'Le coffret, le tapis, le palier.',objets:['coffret','vin','terre']},
-    {id:'bib',nom:'Bibliothèque',desc:'Des rayonnages jusqu’au plafond.',objets:['livre']},
-    {id:'sal',nom:'Salle à manger',desc:'La table n’a pas encore été desservie.',objets:['plan','verres']}
-  ],
-  suspects:[
-    {id:'basile',nom:'Basile Verdier',age:26,role:'Neveu de Mme Verdier',alibi:'« J’ai pris un appel dans le jardin d’hiver, je suis revenu pour le dessert. »',
-      qs:[{q:'Vous buvez du rouge ?',a:'« Toujours. Le Bordeaux de ma tante est excellent. »'},
-          {q:'Connaissiez-vous la cachette de la clé ?',a:'« Bien sûr, je viens ici depuis l’enfance. »'},
-          {q:'Qui vous a vu pendant votre appel ?',a:'« Personne. Je me suis isolé. »'}],
-      conf:{vin:{t:'Il fixe le tapis. « Un hasard. On renverse du vin partout. »'},plan:{t:'« Je suis sorti cinq minutes, pas de quoi en faire une affaire. »'},verres:{t:'Il garde le silence trop longtemps.'},livre:{t:'« Tout le monde pouvait le savoir. »'}}},
-    {id:'clotilde',nom:'Clotilde Roux',age:58,role:'Cuisinière',alibi:'« Au fourneau, puis au service. Je n’ai pas quitté le rez-de-chaussée. »',
-      qs:[{q:'Connaissez-vous la cachette ?',a:'« Oui, après vingt ans dans cette maison. Mais je n’y ai pas touché. »'},
-          {q:'Qui a quitté la table ?',a:'« Monsieur Basile, vers 20 h 20, pendant le plat. »'}],
-      conf:{plan:{t:'« Voilà, j’ai servi tout le monde. Vous pouvez demander. »'},livre:{t:'« Je connais la cachette, mais je ne monte jamais à l’étage pendant le service. »'}}},
-    {id:'armand',nom:'Armand Colin',age:63,role:'Jardinier',alibi:'« J’ai quitté la maison à 19 h, à vélo. »',
-      qs:[{q:'Connaissez-vous la cachette ?',a:'« Non, je n’entre jamais dans la bibliothèque. »'},
-          {q:'Que dites-vous de la terre sur le palier ?',a:'« Je dépose mes bottes à la porte, comme toujours. »'}],
-      conf:{terre:{t:'« Je laisse mes bottes dehors. Cette terre n’est pas la mienne. »'}}}
-  ],
-  solution:{coupable:'basile',preuves:['vin','livre','plan','verres'],expl:'Seuls les proches connaissaient la cachette de la clé. Clotilde a servi la table toute la soirée et Armand était parti à 19 h. Basile est sorti vers 20 h 20, et c’est le seul convive à boire du vin rouge, comme la goutte retrouvée près du coffret.'},
-  hints:['Qui a pu quitter la table sans éveiller les soupçons ?','Comparez la goutte de vin avec ce que chacun buvait.','Qui connaissait la cachette de la clé et n’a pas d’alibi ?']
-},
-{
-  id:'m1',niv:2,titre:'La Dame au miroir',accroche:'Un tableau du XVIIIe siècle remplacé par une copie.',
-  intro:'Musée Roche, Dijon. Jeudi matin, le gardien constate que « La Dame au miroir », un tableau du XVIIIe siècle, est une copie. Le vol a eu lieu dans la nuit de mardi à mercredi, sans que l’alarme sonne. Quatre personnes avaient un lien avec l’œuvre.',
-  indices:{
-    cadre:{n:'Cadre de la toile',t:'Le cadre d’origine a été remis en place avec des vis neuves. Le travail est soigné et demande des outils d’atelier.'},
-    alarme:{n:'Journal d’alarme',t:'Mardi, 23 h 12 : alarme de la salle 4 désactivée avec le badge n° 4471. Réactivée à 0 h 40.'},
-    badges:{n:'Liste des badges',t:'Badge n° 4471 : Marc Taillandier, restaurateur. Badge n° 1002 : Hélène Roche, conservatrice. Badge n° 3310 : Joël Perrin, gardien.'},
-    ronde:{n:'Registre de ronde',t:'Joël a fait sa ronde à 23 h 00 et à 0 h 45 sans rien noter. Entre les deux, il était dans le local de sécurité.'},
-    dette:{n:'Relance bancaire',t:'Une lettre de relance au nom de Joël Perrin : 4 000 € de découvert.'},
-    pigment:{n:'Rapport du laboratoire',t:'La copie contient du blanc de titane, un pigment inventé après 1920. Le seul tube du musée est dans l’atelier de restauration.'},
-    billet:{n:'Billet d’opéra',t:'Un billet froissé dans la corbeille de l’atelier : Opéra de Dijon, séance de mercredi 20 h.'},
-    offre:{n:'Lettre de Valentin Rey',t:'Offre de 2 millions d’euros pour le tableau, refusée deux fois par la conservatrice.'},
-    hotel:{n:'Facture d’hôtel',t:'Hélène Roche a dormi à Lyon la nuit de mardi à mercredi, pour un colloque.'}
-  },
-  lieux:[
-    {id:'s4',nom:'Salle 4',desc:'Le mur où le tableau était accroché.',objets:['cadre']},
-    {id:'sec',nom:'Local de sécurité',desc:'Écrans, registres et casiers.',objets:['alarme','badges','ronde','dette']},
-    {id:'at',nom:'Atelier de restauration',desc:'Chevalets, pigments et corbeille à papier.',objets:['pigment','billet']},
-    {id:'bur',nom:'Bureau de la conservatrice',desc:'Courriers et factures classés.',objets:['offre','hotel']}
-  ],
-  suspects:[
-    {id:'helene',nom:'Hélène Roche',age:49,role:'Conservatrice',alibi:'« Colloque à Lyon, de lundi à mercredi. »',
-      qs:[{q:'Pourquoi refuser l’offre de M. Rey ?',a:'« Le tableau appartient à la ville. Il n’est pas à vendre. »'},
-          {q:'Qui a accès à la salle 4 la nuit ?',a:'« Les badges de la conservation, de la sécurité, et celui du restaurateur pour son chantier. »'}],
-      conf:{hotel:{t:'« Voilà ma facture, j’étais bien à Lyon. »'},offre:{t:'« Valentin insiste depuis un an. »'}}},
-    {id:'marc',nom:'Marc Taillandier',age:44,role:'Restaurateur',alibi:'« À l’Opéra de Dijon, mardi soir. Vous pouvez vérifier. »',
-      qs:[{q:'Où est votre badge ?',a:'« Dans ma poche, jamais perdu. »'},
-          {q:'Avez-vous restauré ce tableau ?',a:'« Oui, il y a deux semaines. Je le connais par cœur. »'},
-          {q:'Avez-vous du blanc de titane à l’atelier ?',a:'« Pour les retouches modernes, comme tout le monde. »'}],
-      conf:{billet:{t:'Il se crispe. « Je me suis trompé de jour, c’est tout. »'},pigment:{t:'« Un tube parmi d’autres. N’importe qui peut y accéder. »'},alarme:{t:'« Quelqu’un a pu cloner mon badge. »'},badges:{t:'« Mon badge, oui. Je ne l’ai jamais prêté. »'},cadre:{t:'« Un cadre, ça se revisse. Ça ne prouve rien. »'}}},
-    {id:'joel',nom:'Joël Perrin',age:52,role:'Gardien de nuit',alibi:'« Mes rondes à 23 h et 0 h 45. Tout était calme. »',
-      qs:[{q:'Avez-vous vu quelqu’un ?',a:'« Personne. Je regardais mes écrans. »'},
-          {q:'Avez-vous des soucis d’argent ?',a:'« Comme tout le monde. Ça n’a rien à voir. »'}],
-      conf:{dette:{t:'Il blêmit. « Je n’ai jamais rien volé de ma vie. »'},alarme:{t:'« Je ne regarde pas ce journal, je contrôle seulement les portes. »'},ronde:{t:'« J’ai fait mes deux rondes, c’est écrit. »'}}},
-    {id:'valentin',nom:'Valentin Rey',age:61,role:'Collectionneur, mécène',alibi:'« À Genève pour affaires, rentré mercredi matin. »',
-      qs:[{q:'Pourquoi tenez-vous à ce tableau ?',a:'« Mon grand-père l’avait possédé. C’est un attachement familial. »'},
-          {q:'Êtes-vous venu au musée récemment ?',a:'« Il y a un mois, pour revoir la toile. »'}],
-      conf:{offre:{t:'« Je l’admets, j’ai insisté. Mais voler ? Je suis collectionneur, pas cambrioleur. »'}}}
-  ],
-  solution:{coupable:'marc',preuves:['alarme','badges','pigment','billet'],expl:'Le journal d’alarme montre que la salle 4 a été désarmée à 23 h 12 avec le badge n° 4471, celui de Marc Taillandier. Son alibi d’opéra s’effondre : son billet date de mercredi. Enfin, la copie contient du blanc de titane, dont le seul tube du musée se trouve dans son atelier.'},
-  hints:['Le badge utilisé pour désarmer l’alarme laisse une trace dans le journal.','Vérifiez les alibis : un papier peut mentir sur la date.','Qui avait à la fois l’accès, les outils et le pigment pour fabriquer la copie ?']
-},
-{
-  id:'m2',niv:2,titre:'Black-out au gala',accroche:'Sept minutes sans lumière, un coffre vidé.',
-  intro:'Hôtel Régence, Lyon. Pendant le gala de bienfaisance, le courant est coupé 7 minutes à 22 h 15. Quand la lumière revient, le coffre du bureau est ouvert : 62 000 € de dons ont disparu. Rien n’a été forcé.',
-  indices:{
-    coffre:{n:'Coffre du bureau',t:'Ouvert avec le code, jamais forcé. Seules deux personnes connaissent le code : Irène Vasseur et Charles Dubreuil.'},
-    gants:{n:'Gant de latex',t:'Un gant de latex taché de sucre glace dans la corbeille du vestiaire. Il sert à la pâtisserie.'},
-    disj:{n:'Disjoncteur B',t:'Le disjoncteur B a été coupé à 22 h 15 et remis à 22 h 22.'},
-    trousseau:{n:'Trousseau du local technique',t:'Trois clés existent : Pascal Noël, la direction de l’hôtel et le maître d’hôtel.'},
-    programme:{n:'Programme de la soirée',t:'Aucune « surprise lumineuse » prévue. À 22 h 10, discours d’Irène Vasseur sur scène, jusqu’à 22 h 25.'},
-    photos:{n:'Photos du gala',t:'Plusieurs photos horodatées montrent Irène Vasseur sur scène, micro en main, à 22 h 14 et à 22 h 19.'},
-    message:{n:'SMS sur le téléphone de Pascal',t:'22 h 02, expéditeur Charles Dubreuil : « Coupe le B à 22 h 15 pile, c’est pour la surprise. »'}
-  },
-  lieux:[
-    {id:'sa',nom:'Salle de bal',desc:'Scène, tables rondes, photographe.',objets:['programme','photos']},
-    {id:'bu',nom:'Bureau de direction',desc:'Le coffre est encastré dans le mur.',objets:['coffre']},
-    {id:'lt',nom:'Local technique',desc:'Tableau électrique et armoire à clés.',objets:['disj','trousseau']},
-    {id:'ve',nom:'Vestiaire du personnel',desc:'Casiers et corbeille.',objets:['gants']}
-  ],
-  suspects:[
-    {id:'irene',nom:'Irène Vasseur',age:55,role:'Organisatrice du gala',alibi:'« Je faisais mon discours sur scène devant 200 personnes. »',
-      qs:[{q:'Qui connaît le code du coffre ?',a:'« Charles et moi, personne d’autre. »'},
-          {q:'Avez-vous quitté la scène ?',a:'« Pas une seconde. Demandez au photographe. »'}],
-      conf:{photos:{t:'« Voilà, j’y étais. Vingt minutes de discours. »'},coffre:{t:'« Le code, oui. Mais je parlais au micro. »'}}},
-    {id:'pascal',nom:'Pascal Noël',age:38,role:'Technicien son et lumière',alibi:'« Je surveillais le son et la lumière depuis la régie. »',
-      qs:[{q:'Avez-vous coupé le courant ?',a:'« Moi ? Jamais. C’est sûrement une panne. »'},
-          {q:'Qui a la clé du local technique ?',a:'« Moi, la direction et le maître d’hôtel. »'}],
-      conf:{disj:{t:'Il baisse les yeux. « Bon... on m’a demandé de le couper. Regardez mon téléphone. »',gain:'message'},trousseau:{t:'« Oui, j’ai une clé, comme les deux autres. »'}}},
-    {id:'charles',nom:'Charles Dubreuil',age:47,role:'Maître d’hôtel',alibi:'« Au bar, je faisais servir le champagne. »',
-      qs:[{q:'Qui connaît le code du coffre ?',a:'« Madame Vasseur et moi. Personne d’autre. »'},
-          {q:'Avez-vous donné une consigne à Pascal ?',a:'« Moi ? Jamais. Pascal gère la technique seul. »'},
-          {q:'Pouvez-vous prouver votre présence au bar ?',a:'« Mes serveurs me connaissent, mais personne ne regardait l’heure. »'}],
-      conf:{message:{t:'Il pâlit. « Un faux. On peut écrire ce qu’on veut sur un téléphone... »'},programme:{t:'« La surprise a peut-être été annulée au dernier moment. »'},trousseau:{t:'« Une clé parmi trois, ça ne prouve rien. »'}}},
-    {id:'lea',nom:'Léa Ferrand',age:24,role:'Serveuse',alibi:'« Je distribuais les petits fours côté jardin. »',
-      qs:[{q:'Qu’avez-vous vu ?',a:'« Un homme en veste noire près du couloir technique. Je n’ai vu que son dos. »'}],
-      conf:{gants:{t:'« Ces gants servent à la plonge, pas à voler. »'}}}
-  ],
-  solution:{coupable:'charles',preuves:['coffre','programme','photos','message'],expl:'Seuls Irène et Charles connaissaient le code du coffre, et les photos placent Irène sur scène pendant la coupure. Pascal, confronté au disjoncteur, avoue avoir reçu un SMS de Charles lui demandant de couper le courant pour une « surprise » qui n’existait pas au programme.'},
-  hints:['Qui connaît le code du coffre, et qui était occupé à 22 h 15 ?','Quelqu’un a coupé le courant : qui avait la clé du local ? Et qui a donné l’ordre ?','Pascal parle plus volontiers quand on lui montre le disjoncteur.']
-},
-{
-  id:'c1',niv:3,titre:'Le dernier manuscrit',accroche:'Une chute fatale que tout le monde veut croire accidentelle.',
-  intro:'Château de Bois-Hardi, près de Rouen. L’écrivain Armand Delorme est retrouvé sans vie au pied de l’échelle de sa bibliothèque, à 7 h 30. Chute accidentelle, dit le médecin de famille. Mais Delorme avait le vertige et ne montait jamais seul sur cette échelle. Cinq personnes l’entouraient hier soir. Certains lieux sont fermés : à vous de trouver les clés.',
-  indices:{
-    echelle:{n:'Échelle de bibliothèque',t:'Les barreaux sont propres, sans trace de semelle. Delorme, qui avait le vertige, ne montait jamais sur cette échelle.'},
-    tisane:{n:'Tasse de tisane',t:'Une tasse de tilleul sur le bureau. L’analyse y relève un sédatif puissant, le même que Delorme prenait le soir, à dose normale. Ici, la dose était triple.'},
-    boite:{n:'Boîte de tisanes',t:'La boîte de tilleul porte l’étiquette « Éditions Keller, Noël 2025 ». Une dizaine de proches en ont reçu une.'},
-    alarme:{n:'Journal d’alarme',t:'Porte du jardin ouverte à 22 h 48 avec le code personnel n° 3. Refermée à 23 h 20.'},
-    codes:{n:'Liste des codes',t:'Codes personnels : n° 1 Delorme, n° 2 Mathilde Ruiz, n° 3 Sonia Keller, n° 4 Lucas Delorme, n° 5 Dr Fabre.'},
-    horaire:{n:'Fiche horaire',t:'Dernier train utile Paris–Rouen : 21 h 14, arrivée 22 h 29. La gare est à 15 minutes du château en taxi.'},
-    dettes:{n:'Courrier d’huissier',t:'Au nom de Lucas Delorme : 18 000 € de dettes de jeu. Il comptait sur l’héritage.'},
-    sms:{n:'Message de Lucas',t:'À 21 h 02, Lucas à son père : « On s’est trop parlé ce soir. Je monte. »'},
-    cave:{n:'Clé de la cave',t:'Mathilde a indiqué que Delorme cachait ses « vrais comptes » dans la cave à vin. La clé est derrière le tableau du vestibule.'},
-    pages:{n:'Chapitre final',t:'Dans la cave, un chapitre daté de lundi : Delorme accuse nommément Sonia Keller d’avoir détourné ses droits d’auteur depuis huit ans.'},
-    droits:{n:'Relevés de droits',t:'Écart de 310 000 € entre les ventes réelles et les droits versés à Delorme depuis 2017.'},
-    addition:{n:'Addition du bistrot',t:'Addition du Bistrot Ravel, à Paris, réglée par carte à 21 h 05 par Sonia Keller. Service terminé.'}
-  },
-  lieux:[
-    {id:'bib',nom:'Bibliothèque',desc:'Là où le corps a été découvert.',objets:['echelle']},
-    {id:'bur',nom:'Bureau de Delorme',desc:'Un bureau encombré de notes et de tasses.',objets:['tisane','boite','horaire']},
-    {id:'ves',nom:'Vestibule',desc:'Le tableau d’alarme et le registre des codes.',objets:['alarme','codes']},
-    {id:'luc',nom:'Chambre de Lucas',desc:'Le fils de la maison dormait ici.',objets:['dettes','sms']},
-    {id:'cav',nom:'Cave à vin',desc:'Une porte de chêne, fermée à clé.',verrou:'cave',objets:['pages','droits']}
-  ],
-  suspects:[
-    {id:'sonia',nom:'Sonia Keller',age:52,role:'Éditrice',alibi:'« Au Bistrot Ravel, à Paris, jusqu’à minuit. Tout le monde m’y connaît. »',
-      qs:[{q:'Aviez-vous un différend avec Delorme ?',a:'« Des discussions de contrat, comme avec tous mes auteurs. »'},
-          {q:'Pouvez-vous prouver où vous étiez ?',a:'« Bien sûr. Voici mon addition. »',gain:'addition'},
-          {q:'Avez-vous un code d’accès au château ?',a:'« Oui, pour déposer les manuscrits. Je m’en sers presque jamais. »'}],
-      conf:{alarme:{t:'« Le code n° 3 ? Quelqu’un a pu s’en servir. »'},codes:{t:'« Oui, c’est le mien. Il circule peut-être dans mon équipe. »'},boite:{t:'« Nous en offrons à tous nos auteurs et à leur entourage. »'},horaire:{t:'« Je ne prends jamais de train le soir. »'},addition:{t:'« Réglée tôt, c’est tout. Je suis restée au bar ensuite. »'},pages:{t:'Elle devient livide. « Des accusations de vieillard. Ça ne prouve rien. »'},droits:{t:'« Des erreurs comptables. Mon logiciel de gestion est défaillant. »'}}},
-    {id:'lucas',nom:'Lucas Delorme',age:29,role:'Fils',alibi:'« Dans ma chambre, avec mes écouteurs, depuis 22 h. »',
-      qs:[{q:'Pourquoi vous êtes-vous disputés ?',a:'« Il refusait de payer mes dettes. Je l’ai insulté, je m’en veux. »'},
-          {q:'Quel est votre code d’accès ?',a:'« Le n° 4. Je ne m’en sers jamais pour le jardin. »'}],
-      conf:{dettes:{t:'« Oui, j’ai des dettes. Mais je n’aurais jamais touché à mon père. »'},sms:{t:'« Je suis monté. Je n’ai plus entendu aucun bruit. »'},alarme:{t:'« Le n° 3 ? Ce n’est pas le mien. »'}}},
-    {id:'mathilde',nom:'Mathilde Ruiz',age:38,role:'Secrétaire',alibi:'« Chez moi, à Rouen. Un voisin m’a vue rentrer à 21 h 30. »',
-      qs:[{q:'Delorme cachait-il quelque chose ?',a:'« Ses “vrais comptes”, dans la cave à vin. La clé est derrière le tableau du vestibule. »',gain:'cave'},
-          {q:'Qui menaçait Delorme ?',a:'« Le voisin pour une histoire de haie, et la maison d’édition pour les contrats. »'}],
-      conf:{alarme:{t:'« Le n° 3 n’est pas le mien. Le mien est le n° 2. »'},codes:{t:'« Oui, mon code est bien le 2. »'}}},
-    {id:'fabre',nom:'Dr Paul Fabre',age:61,role:'Médecin de famille',alibi:'« De garde à la clinique jusqu’à 1 h. »',
-      qs:[{q:'Aviez-vous prescrit un sédatif à Delorme ?',a:'« Oui, depuis un an, pour l’insomnie. À dose normale, c’est inoffensif. »'},
-          {q:'Pourquoi avoir conclu à une chute ?',a:'« Les apparences. Je n’ai pas fait d’autopsie, ce n’était pas mon rôle. »'}],
-      conf:{tisane:{t:'« Ce sédatif, c’était le sien. Mais jamais une dose pareille. »'},alarme:{t:'« Mon code est le n° 5. »'}}},
-    {id:'mazet',nom:'Étienne Mazet',age:67,role:'Voisin',alibi:'« Chez moi, je regardais la télé. »',
-      qs:[{q:'Aviez-vous un conflit avec Delorme ?',a:'« La haie. Il me volait quarante centimètres. Mais de là à le tuer ! »'},
-          {q:'Avez-vous remarqué quelque chose hier soir ?',a:'« Un taxi s’est arrêté devant le portail vers 22 h 40. Une femme en est descendue. »'}],
-      conf:{tisane:{t:'« Je ne mets jamais les pieds chez lui. »'}}}
-  ],
-  solution:{coupable:'sonia',preuves:['alarme','codes','addition','horaire','pages','droits','boite'],expl:'Le code n° 3, qui a ouvert la porte du jardin à 22 h 48, appartient à Sonia Keller. Son addition parisienne est réglée à 21 h 05 : le train de 21 h 14 la déposait à Rouen à 22 h 29, puis un taxi, vu par le voisin, jusqu’au château. Elle a drogué la tisane offerte par sa maison, car Delorme s’apprêtait à publier un chapitre l’accusant d’avoir détourné 310 000 € de droits d’auteur.'},
-  hints:['Le journal d’alarme et la liste des codes désignent quelqu’un. Croisez-les.','Une cave est fermée à clé : quelqu’un sait peut-être où se trouve la clé.','Un alibi trop précis se vérifie : regardez l’heure de l’addition, puis l’horaire des trains.']
-},
-{
-  id:'c2',niv:3,titre:'Le testament Vidal',accroche:'Un testament daté de mars, mais est-il de la main du défunt ?',
-  intro:'Honoré Vidal, magistrat retraité, est mort le 12 juin. Son notaire présente un testament daté du 3 mars qui donne tout à son aide à domicile, Camille Perret. La famille crie au faux. Une fois le testament validé, la succession sera close en quelques jours. Qui l’a fabriqué ? Un lieu reste inaccessible tant que vous ignorez ce qui s’y trouve.',
-  indices:{
-    stylo:{n:'Stylo-plume de Vidal',t:'Dans son bureau, le stylo-plume et l’encrier de Vidal contiennent de l’encre bleu-noir. Le testament est écrit à l’encre bleu turquoise.'},
-    agenda:{n:'Agenda de Vidal',t:'3 mars : dentiste à 15 h, dîner chez sa fille. Aucun rendez-vous chez le notaire.'},
-    comptes:{n:'Relevés bancaires',t:'En février, 190 000 € virés du compte de Vidal vers « Rocroi SARL », sans signature de sa part.'},
-    lettre:{n:'Lettre de Gabriel',t:'Gabriel Vidal demande 30 000 € à son oncle et essuie un refus écrit, en avril.'},
-    visite:{n:'Visites du notaire',t:'Paulette confirme que Maître Roux est venu fin mai chercher des papiers chez Vidal et qu’il a laissé un double de la clé de son étude pour la succession.'},
-    encrier:{n:'Encre de l’étude',t:'L’encrier de l’étude contient de l’encre bleu turquoise, la couleur des courriers à en-tête.'},
-    papier:{n:'Papier à filigrane',t:'Le testament est sur papier filigrané « Étude Roux », d’un lot livré en mai. Il est pourtant daté du 3 mars.'},
-    rocroi:{n:'Courrier Rocroi SARL',t:'Courrier de la société Rocroi SARL, domiciliée à l’adresse personnelle de Maître Roux.'}
-  },
-  lieux:[
-    {id:'bur',nom:'Bureau de Vidal',desc:'Stylos, agenda et relevés de compte.',objets:['stylo','agenda','comptes']},
-    {id:'sal',nom:'Salon',desc:'Un secrétaire ancien et des lettres.',objets:['lettre']},
-    {id:'etu',nom:'Étude de Maître Roux',desc:'Un cabinet notarial fermé à clé.',verrou:'visite',objets:['encrier','papier','rocroi']}
-  ],
-  suspects:[
-    {id:'camille',nom:'Camille Perret',age:34,role:'Aide à domicile',alibi:'« Le 3 mars, j’étais chez moi avec ma fille malade. »',
-      qs:[{q:'Saviez-vous que vous héritiez ?',a:'« Non. Honoré ne m’en a jamais parlé. »'},
-          {q:'Honoré avait-il des soucis d’argent ?',a:'« Non, mais il s’inquiétait de ses comptes. Il disait que le notaire tardait à lui répondre. »'}],
-      conf:{stylo:{t:'« Honoré écrivait toujours en bleu-noir. Je le lui ai vu faire mille fois. »'},comptes:{t:'« 190 000 € ? Il ne m’en a jamais parlé. »'}}},
-    {id:'gabriel',nom:'Gabriel Vidal',age:45,role:'Neveu',alibi:'« Je travaillais à Lyon, mes collègues peuvent le confirmer. »',
-      qs:[{q:'Pourquoi contestez-vous le testament ?',a:'« Mon oncle ne m’aurait jamais déshérité sans un mot. »'},
-          {q:'Aviez-vous besoin d’argent ?',a:'« Un peu. Comme tout le monde. »'}],
-      conf:{lettre:{t:'« Oui, j’ai demandé de l’aide. Et alors ? »'},agenda:{t:'« Donc il n’était pas chez le notaire ce jour-là... »'}}},
-    {id:'paulette',nom:'Paulette Marchal',age:66,role:'Gouvernante',alibi:'« À la cuisine, comme tous les jours. »',
-      qs:[{q:'Qui rendait visite à M. Vidal ?',a:'« Surtout son notaire, Maître Roux. Il est venu fin mai chercher des papiers. Il m’a laissé le double de la clé de l’étude, au cas où. »',gain:'visite'},
-          {q:'Vidal parlait-il de testament ?',a:'« Jamais. Il disait que tout serait partagé entre ses neveux. »'}],
-      conf:{}},
-    {id:'nadine',nom:'Nadine Colas',age:59,role:'Voisine et amie',alibi:'« Chez moi, je ne sortais guère cet hiver. »',
-      qs:[{q:'Vidal se confiait-il à vous ?',a:'« Il se plaignait des frais du notaire et de la lenteur de ses affaires. »'},
-          {q:'Connaissiez-vous Camille ?',a:'« Une femme honnête, qui s’occupait très bien de lui. »'}],
-      conf:{}},
-    {id:'roux',nom:'Maître Roux',age:58,role:'Notaire',alibi:'« Je n’ai fait qu’enregistrer ce testament, écrit de la main du défunt. »',
-      qs:[{q:'Où était le testament ?',a:'« Dans le coffre de l’étude, depuis mars. »'},
-          {q:'Pourquoi le présenter si tard ?',a:'« Parce qu’on ne me l’a signalé qu’au décès. »'}],
-      conf:{stylo:{t:'« Il a pu changer d’encre. Les vieux messieurs ont leurs lubies. »'},papier:{t:'Il se raidit. « Un lot d’essai envoyé à plusieurs clients, une coïncidence. »'},comptes:{t:'« Des placements. Je ne suis pas dans le secret de ses finances. »'},rocroi:{t:'Il ne répond plus, puis demande à appeler son avocat.'},encrier:{t:'« Beaucoup d’études utilisent cette encre. »'},agenda:{t:'« Il a pu rédiger le testament un autre jour. »'}}}
-  ],
-  solution:{coupable:'roux',preuves:['papier','comptes','rocroi','encrier','stylo'],expl:'Le testament est écrit sur un papier à filigrane de l’étude livré en mai, alors qu’il est daté du 3 mars. L’encre turquoise est celle de l’étude, pas celle de Vidal. Maître Roux avait détourné 190 000 € vers Rocroi SARL, société domiciliée chez lui : un faux testament lui permettait de clore vite la succession avant tout contrôle.'},
-  hints:['Le testament est daté du 3 mars. Vérifiez le papier et l’encre.','Un lieu est fermé : qui pourrait vous en dire plus sur les visites du notaire ?','Suivez les 190 000 € virés en février : où sont-ils allés ?']
-}
-];
-
+const CASES=[];
 /* ---------- Icônes et utilitaires ---------- */
 const ICO={
   lieux:'<path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
@@ -426,7 +181,7 @@ const ico=(n,s)=>`<svg class="ico" viewBox="0 0 24 24" width="${s||22}" height="
 const CH=n=>`<span class="gal" aria-hidden="true">${'<svg viewBox="0 0 24 10" width="24" height="10"><path d="M2 8l10-6 10 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"/></svg>'.repeat(n)}</span>`;
 const stars=n=>'★'.repeat(n)+'☆'.repeat(3-n);
 const ini=n=>n.replace(/^(Mme|Dr|Maître)\s+/,'').split(' ').slice(0,2).map(w=>w[0]).join('');
-const num=(c)=>String(CASES.indexOf(c)+1).padStart(2,'0');
+const num=(c)=>String(CASES.findIndex(x=>x.id===c.id)+1).padStart(2,'0');
 
 /* ---------- État ---------- */
 let prog={};
@@ -544,7 +299,7 @@ function caseV(){
 }
 function baseEndV(){
   const g=S.g,c=g.c,r=S.res,s=c.suspects.find(x=>x.id===c.solution.coupable);
-  const idx=CASES.indexOf(c),nx=CASES[idx+1];
+  const idx=CASES.findIndex(x=>x.id===c.id),nx=CASES[idx+1];
   return topbar(null)+`<main class="wrap"><section class="hero"><p class="kick">Dossier ${num(c)} · ${c.titre}</p><h1 class="verdict ${r.win?'win':'lose'}">${r.win?'Affaire classée':'Classée sans suite'}</h1>${r.win?`<p class="stars big-stars" aria-label="${r.stars} étoiles sur 3">${stars(r.stars)}</p>`:'<p class="lead">Le juge d’instruction a refusé vos accusations. Voici ce qui s’était réellement passé.</p>'}</section><section class="brief"><p class="kick">Le coupable</p><h2 class="ct" style="margin-top:6px">${s.nom}</h2><p>${c.solution.expl}</p></section><p class="rule" style="margin-top:14px">Essais ratés : ${g.errs} · Conseils utilisés : ${g.hints} · Pièces trouvées : ${g.found.length} sur ${Object.keys(c.indices).length}</p><div class="cta"><button class="btn p" data-a="replay" data-id="${c.id}">Rejouer ce dossier</button>${nx&&r.win?`<button class="btn g" data-a="open" data-id="${nx.id}">Dossier suivant : ${nx.titre}</button>`:''}<button class="btn g" data-a="home">Tous les dossiers</button></div></main>`;
 }
 function render(){
@@ -571,25 +326,17 @@ function resolve(){
  g.fb='Dossier rejeté : les éléments sont insuffisants. Reprenez l’enquête.';
 }
 /* Catalogue hebdomadaire : chargement non bloquant et conservation des dossiers d'origine. */
-async function loadWeeklyCases(){
-  try{
-    const response=await fetch('./data/weekly-cases.json',{cache:'no-store'});
-    if(!response.ok)throw new Error('Catalogue indisponible');
-    const weekly=await response.json();
-    if(!Array.isArray(weekly))throw new Error('Format invalide');
-    const safe=(v)=>String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-    const clean=(v)=>Array.isArray(v)?v.map(clean):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,clean(x)])):typeof v==='string'?safe(v):v;
-    for(const raw of weekly){
-      if(!raw||typeof raw!=='object'||!/^hebdo-\d{4}-\d{2}-\d{2}$/.test(raw.id)||![1,2,3].includes(raw.niv))continue;
-      if(CASES.some(c=>c.id===raw.id))continue;
-      if(!raw.indices||!Array.isArray(raw.lieux)||!Array.isArray(raw.suspects)||!raw.solution||!Array.isArray(raw.hints))continue;
-      CASES.push(clean(raw));
-    }
-    if(S.view==='home')render();
-  }catch(error){console.warn('Enquêtes hebdomadaires non chargées :',error.message)}
+async function loadServerCases(){
+ try{
+ const data=await B36API.call('/cases');
+ const clean=v=>Array.isArray(v)?v.map(clean):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,clean(x)])):typeof v==='string'?B36.escape(v):v;
+ CASES.splice(0,CASES.length,...data.cases.map(clean));
+ restoreServerGames();
+ render();
+ }catch(e){toast('Catalogue indisponible : rechargez la page');}
 }
 render();
-loadWeeklyCases();
+window.addEventListener('load',loadServerCases);
 </script>
 <script src="./score.js"></script>
 <script src="./game-extension.js"></script>
