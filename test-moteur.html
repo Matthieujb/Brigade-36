@@ -26,6 +26,6 @@ await check('Limite des indices','/session/hint',{token},r=>r.status===409);
 await check('Accusation sans preuve refusée','/session/accuse',{token,suspect:dossier.suspects[0].id,proofs:[]},r=>r.status===400);
 }finally{busy=false;$('run').disabled=false}}
 $('run').onclick=run;
-async function action(kind){if(busy||!token){log('Action indisponible',false,'Lancer les tests auparavant');return}busy=true;try{const data={token,suspect:$('sus').value,evidenceId:$('proof').value,proofs:[$('proof').value]};const r=await call('/session/'+kind,data);log(kind,r.status===200,'HTTP '+r.status+(r.data.state?' — '+r.data.state:''));if(kind==='confront')gain(r.data.evidence)}catch(e){log(kind,false,e.message)}finally{busy=false}}
+async function action(kind){if(busy||!token){log('Action indisponible',false,'Lancer les tests auparavant');return}busy=true;try{const data={token,suspect:$('sus').value,evidenceId:$('proof').value,proofs:[$('proof').value]};const r=await call('/session/'+kind,data);log(kind,r.status===200||(kind==='report'&&r.status===409),'HTTP '+r.status+(r.data.state?' — '+r.data.state:''));if(kind==='confront')gain(r.data.evidence)}catch(e){log(kind,false,e.message)}finally{busy=false}}
 $('confront').onclick=()=>action('confront');$('accuse').onclick=()=>action('accuse');$('report').onclick=()=>action('report');
 </script></html>
