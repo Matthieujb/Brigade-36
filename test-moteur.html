@@ -1,0 +1,31 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Brigade 36 — Diagnostic</title><style>body{font:16px system-ui;background:#171b22;color:#eee;max-width:760px;margin:auto;padding:20px}h1{border-bottom:4px solid #eab308;padding-bottom:16px}button,select{font:inherit;padding:12px;border-radius:8px;margin:5px;background:#eab308;color:#111;border:0}button:disabled{opacity:.5}li{padding:12px;border-bottom:1px solid #555;overflow-wrap:anywhere}small{color:#bbb} .ok{color:#86efac}.bad{color:#fca5a5}</style><h1>BRIGADE 36 — Diagnostic</h1><p>Préproduction uniquement. Les tests créent des sessions temporaires et peuvent consommer des tentatives.</p><button id="run">Lancer les tests automatiques</button><ol id="results" aria-live="polite"></ol><h2>Tests interactifs</h2><p>Après les tests automatiques, sélectionner un suspect et une preuve pour tester les actions restantes. Une accusation peut clôturer la session.</p><select id="sus" aria-label="Suspect"></select><select id="proof" aria-label="Preuve"></select><button id="confront">Confronter</button><button id="accuse">Accuser avec la preuve</button><button id="report">Rapport final</button><script type="module">
+const api='https://brigade36-preprod-api.matthieujb1.workers.dev', $=id=>document.getElementById(id);
+let token, dossier, found=new Set(), busy=false;
+function log(name,ok,detail=''){const li=document.createElement('li');li.className=ok?'ok':'bad';li.textContent=(ok?'✓ ':'✗ ')+name+' — '+detail;$('results').append(li)}
+async function call(path,data){const r=await fetch(api+path,data===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});return {status:r.status,data:await r.json()}}
+async function check(name,path,data,predicate){try{const r=await call(path,data);const ok=predicate(r);log(name,ok,'HTTP '+r.status);return ok?r.data:null}catch(e){log(name,false,e.message);return null}}
+function options(el,items){el.replaceChildren(...items.map(([id,label])=>new Option(label,id)))}
+function gain(e){if(e?.id){found.add(e.id);options($('proof'),[...found].map(id=>[id,dossier.indices[id]?.n||id]))}}
+async function run(){if(busy)return;busy=true;$('run').disabled=true;$('results').replaceChildren();token=null;found.clear();options($('proof'),[]);options($('sus'),[]);
+try{
+await check('Santé D1','/health/db',undefined,r=>r.status===200&&r.data.schemaReady===true);
+const list=await check('Catalogue : six dossiers','/cases',undefined,r=>r.status===200&&Array.isArray(r.data.cases)&&r.data.cases.length===6);
+if(!list)return;
+const safe=list.cases.every(c=>!('solution'in c)&&!('solution_json'in c)&&c.suspects.every(s=>s.qs.every(q=>!('a'in q)&&!('gain'in q))&&Object.keys(s.conf||{}).length===0)&&Object.values(c.indices).every(i=>!('t'in i)));
+log('Projection publique sans champs privés',safe);
+dossier=list.cases.find(c=>c.id==='f1')||list.cases[0];options($('sus'),dossier.suspects.map(s=>[s.id,s.nom]));
+await check('Jeton invalide refusé','/session/report',{token:'invalid'},r=>r.status===401);
+const session=await check('Création session Inspecteur','/session/start',{caseId:dossier.id,grade:2,hintLimit:1},r=>r.status===201&&typeof r.data.token==='string');
+if(!session)return;token=session.token;
+await check('Rapport avant clôture refusé','/session/report',{token},r=>r.status===409);
+await check('Preuve inconnue refusée','/session/evidence',{token,evidenceId:'__invalid__'},r=>r.status===400);
+const location=dossier.lieux.find(l=>l.objets?.length);if(location){const e=await check('Découverte de preuve','/session/evidence',{token,evidenceId:location.objets[0]},r=>r.status===200&&!!r.data.evidence);gain(e?.evidence)}
+const s=dossier.suspects.find(s=>s.qs.length);if(s){const q=await check('Question scénarisée','/session/question',{token,suspect:s.id,index:0},r=>r.status===200&&typeof r.data.answer==='string');gain(q?.evidence)}
+await check('Indice disponible','/session/hint',{token},r=>r.status===200&&r.data.remaining===0);
+await check('Limite des indices','/session/hint',{token},r=>r.status===409);
+await check('Accusation sans preuve refusée','/session/accuse',{token,suspect:dossier.suspects[0].id,proofs:[]},r=>r.status===400);
+}finally{busy=false;$('run').disabled=false}}
+$('run').onclick=run;
+async function action(kind){if(busy||!token){log('Action indisponible',false,'Lancer les tests auparavant');return}busy=true;try{const data={token,suspect:$('sus').value,evidenceId:$('proof').value,proofs:[$('proof').value]};const r=await call('/session/'+kind,data);log(kind,r.status===200,'HTTP '+r.status+(r.data.state?' — '+r.data.state:''));if(kind==='confront')gain(r.data.evidence)}catch(e){log(kind,false,e.message)}finally{busy=false}}
+$('confront').onclick=()=>action('confront');$('accuse').onclick=()=>action('accuse');$('report').onclick=()=>action('report');
+</script></html>
