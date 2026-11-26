@@ -26,7 +26,7 @@ const B36 = {
  },
  passView(g){return topbar(null)+'<main class="wrap b36-setup"><p class="kick">Passage du téléphone</p><h1>Tour de '+this.escape(this.current(g).name)+'</h1><p class="lead">Passez le téléphone à cette personne. Le dossier reste masqué jusqu’à sa confirmation.</p><button class="btn p" data-b36="ready">Je suis prêt</button></main>'}
 };
-function restoreServerGames(){try{const raw=JSON.parse(localStorage.getItem('brigade36_games_v3')||'{}');for(const [id,g] of Object.entries(raw)){const c=CASES.find(x=>x.id===id);if(c&&g.token&&Array.isArray(g.players)&&g.players.length>=1&&g.players.length<=6){const copy=structuredClone(c);for(const [k,t] of Object.entries(g.evidenceTexts||{}))if(copy.indices[k])copy.indices[k].t=t;S.games[id]={...g,c:copy}}}}catch(e){}
+function restoreServerGames(){try{const raw=JSON.parse(localStorage.getItem('brigade36_games_v3')||'{}');for(const [id,g] of Object.entries(raw)){const c=CASES.find(x=>x.id===id);if(c&&g.token&&Array.isArray(g.players)&&g.players.length>=1&&g.players.length<=6){const copy=structuredClone(c);for(const [k,t] of Object.entries(g.evidenceTexts||{}))if(copy.indices[k])copy.indices[k].t=t;S.games[id]={...g,c:copy}}}}catch(e){}}
 
 const baseEnd=baseEndV;
 function newGame(c,q){
@@ -70,7 +70,7 @@ app.addEventListener('click',async e=>{
  if(S.view==='setup'&&!['launch','home'].includes(a))return;
  switch(a){
  case 'home':S.view='home';top=true;break;
- case 'open':start(id,false);top=true;break;
+ case 'open':start(id,false);if(S.g?.c.id===id&&S.g.closed){const report=await B36API.call('/session/report',{token:S.g.token});S.g.c.solution={...report.solution,expl:B36.escape(report.solution.expl)};finish(S.g.closed==='won',0);}top=true;break;
  case 'replay':start(id,true);top=true;break;
  case 'launch':{
   const q=B36.setup,c=CASES.find(x=>x.id===q.id),names=q.names.slice(0,q.count).map(x=>x.trim());
