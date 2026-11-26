@@ -14,7 +14,7 @@ const B36 = {
  level(g){return LV[g.level]},
  current(g){return g.players[g.turn]},
  remaining(g){return g.hintsAllowed?Math.max(0,(Number.isFinite(g.hintLimit)?g.hintLimit:LV[g.level].conseils)-g.hints):0},
- save(){try{const o={};for(const [id,g] of Object.entries(S.games)){const {c,...state}=g;o[id]=state}localStorage.setItem('brigade36_games_v3',JSON.stringify(o))}catch(e){}},
+ save(){try{const o={};for(const [id,g] of Object.entries(S.games)){const {c,...state}=g;o[id]=state}localStorage.setItem('brigade36_games_v3',JSON.stringify(o));localStorage.setItem('brigade36_active_v4',JSON.stringify({id:S.g?.c.id||null,view:S.view}))}catch(e){toast('Sauvegarde locale indisponible')}},
  next(g){for(let i=1;i<=g.players.length;i++){const n=(g.turn+i)%g.players.length;if(!g.players[n].out)return n}return g.turn},
  action(g){if(g.players.length<2)return;g.actions++;if(g.actions>=2){g.actions=0;g.turn=this.next(g);g.passing=true;S.view='pass'}},
  hint(g){if(!this.remaining(g))return;const id=g.c.solution.preuves[0],place=g.c.lieux.find(x=>x.objets.includes(id)),person=g.c.suspects.find(x=>x.id===g.c.solution.coupable);const hints=['Comparez les alibis et les déplacements.','Explorez '+(place?place.nom:'les lieux')+' et interrogez '+(person?person.nom:'les témoins')+'.','Examinez la pièce « '+g.c.indices[id].n+' ».'];g.hints++;(g.hintLog=g.hintLog||[]).push(hints[Math.min(2,g.hints-1)]);g.tab='carnet'},
@@ -26,7 +26,7 @@ const B36 = {
  },
  passView(g){return topbar(null)+'<main class="wrap b36-setup"><p class="kick">Passage du téléphone</p><h1>Tour de '+this.escape(this.current(g).name)+'</h1><p class="lead">Passez le téléphone à cette personne. Le dossier reste masqué jusqu’à sa confirmation.</p><button class="btn p" data-b36="ready">Je suis prêt</button></main>'}
 };
-function restoreServerGames(){try{const raw=JSON.parse(localStorage.getItem('brigade36_games_v3')||'{}');for(const [id,g] of Object.entries(raw)){const c=CASES.find(x=>x.id===id);if(c&&g.token&&Array.isArray(g.players)&&g.players.length>=1&&g.players.length<=6){const copy=structuredClone(c);for(const [k,t] of Object.entries(g.evidenceTexts||{}))if(copy.indices[k])copy.indices[k].t=t;S.games[id]={...g,c:copy}}}}catch(e){}}
+function restoreServerGames(){try{const raw=JSON.parse(localStorage.getItem('brigade36_games_v3')||'{}');for(const [id,g] of Object.entries(raw)){const c=CASES.find(x=>x.id===id);if(c&&g.token&&Array.isArray(g.players)&&g.players.length>=1&&g.players.length<=6){const copy=structuredClone(c);for(const [k,t] of Object.entries(g.evidenceTexts||{}))if(copy.indices[k])copy.indices[k].t=t;S.games[id]={...g,c:copy}}}const active=JSON.parse(localStorage.getItem('brigade36_active_v4')||'null');if(active&&S.games[active.id]&&['case','pass'].includes(active.view)){S.g=S.games[active.id];S.view=S.g.passing?'pass':'case';if(S.g.closed)S.view='home';}}catch(e){toast('Reprise de partie indisponible')}}
 
 const baseEnd=baseEndV;
 function newGame(c,q){
@@ -53,7 +53,7 @@ function render(){
 }
 function addClue(g,id){
  if(g.found.includes(id)||!g.c.indices[id])return;
- g.found.push(id);g.players[g.turn].found++;
+ g.found.push(id);g.players[g.turn].found=(g.players[g.turn].found||0)+1;
  toast('Pièce ajoutée au carnet : '+g.c.indices[id].n);
 }
 function action(g){
@@ -118,7 +118,7 @@ app.addEventListener('click',async e=>{
   B36API.evidence(g,d.evidence);
   g.picker=false;used=true;break;
  }
- case 'hint':{if(!B36.remaining(g))break;const d=await B36API.call('/session/hint',{token:g.token});g.hints=g.hintLimit-d.remaining;g.hintLog.push(B36.escape(d.hint));g.tab='carnet';break;}
+ case 'hint':{if(!B36.remaining(g))break;const d=await B36API.call('/session/hint',{token:g.token});g.hints=g.hintLimit-d.remaining;g.hintLog.push(B36.escape(d.hint));g.tab='carnet';used=true;break;}
  case 'sel':g.sel=id;g.proofs=[];g.confirm=false;g.fb='';break;
  case 'proof':{
   const n=LV[g.level].preuves;
@@ -131,7 +131,7 @@ app.addEventListener('click',async e=>{
  case 'accuse':{
   if(!g.sel||g.proofs.length!==LV[g.level].preuves)break;
   if(!g.confirm)g.confirm=true;
-  else {const d=await B36API.call('/session/accuse',{token:g.token,suspect:g.sel,proofs:g.proofs});g.players[g.turn].accusations++;g.errs=d.attempts-(d.state==='won'?1:0);g.confirm=false;g.proofs=[];if(d.state==='active')g.fb='Dossier rejeté : les éléments sont insuffisants.';else {g.closed=d.state;B36.save();const report=await B36API.call('/session/report',{token:g.token});g.c.solution={...report.solution,expl:B36.escape(report.solution.expl)};finish(d.state==='won',0);}}
+  else {const d=await B36API.call('/session/accuse',{token:g.token,suspect:g.sel,proofs:g.proofs});g.players[g.turn].accusations++;g.errs=Number.isInteger(d.attempts)?Math.max(0,d.attempts-(d.state==='won'?1:0)):g.errs+(d.state==='won'?0:1);g.confirm=false;g.proofs=[];if(d.state==='active'){g.fb='Dossier rejeté : les éléments sont insuffisants.';used=true;}else {g.closed=d.state;B36.save();const report=await B36API.call('/session/report',{token:g.token});g.c.solution={...report.solution,expl:B36.escape(report.solution.expl)};finish(d.state==='won',0);}}
   break;
  }
  case 'cancel':g.confirm=false;break;
